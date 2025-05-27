@@ -1,0 +1,143 @@
+{% extends 'layout.html' %}
+{% block title %} {{ title }} {% endblock %}
+{% block content %}
+<style>
+    :root {
+        --primary-green: #4CAF50;
+        --dark-black: #212121;
+        --pure-white: #FFFFFF;
+        --hover-green: #45a049;
+    }
+
+    body {
+        background-image: url('/static/main-backdrop.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-container {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        margin: 1rem;
+        border: 1px solid var(--primary-green);
+    }
+
+    .form-group {
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: var(--pure-white);
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--primary-green);
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+
+    label {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-green);
+    }
+
+    input[type="submit"] {
+        background-color: var(--primary-green);
+        color: var(--pure-white);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    input[type="submit"]:hover {
+        background-color: var(--dark-black);
+    }
+
+    .links {
+        text-align: center;
+        margin: 1.5rem 0;
+        color: var(--dark-black);
+    }
+
+    .links a {
+        color: var(--primary-green);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .links a:hover {
+        color: var(--dark-black);
+    }
+
+    .msg {
+        color: #d32f2f;
+        font-weight: 500;
+        margin: 1rem 0;
+        text-align: center;
+        padding: 8px;
+        background: #ffebee;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 480px) {
+        .form-container {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+    }
+</style>
+
+<div class="form-container">
+    {% include "alert.html" %}
+    <div class="links">
+        <p>Not a user already? <a href="{{ url_for('signup') }}">Register here</a></p>
+    </div>
+    <form action="{{ url_for('login') }}" method="post">
+        <div class="form-group">
+            <label for="username">
+                <i class="fas fa-user"></i>
+            </label>
+            <input type="text" name="username" placeholder="Username" id="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">
+                <i class="fas fa-lock"></i>
+            </label>
+            <input type="password" name="password" placeholder="Password" id="password" required>
+        </div>
+        <div class="msg">{{ msg }}</div>
+        <input type="submit" value="Login">
+    </form>
+</div>
+{% endblock %}
