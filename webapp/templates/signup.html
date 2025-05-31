@@ -1,75 +1,108 @@
 {% extends 'layout.html' %}
 {% block title %} {{ title }} {% endblock %}
-{% block content%}
+{% block content %}
 <style>
     /* Add some styles to the background image and container */
     body {
-        background-image: url('/static/main-backdrop.jpg'); /* Replace with your image path */
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        font-family: Arial, sans-serif;
         margin: 0;
-        padding: 10;
+        padding: 0;
+    }
+
+    .page-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
     }
 
     .register {
-        background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background for the form */
-        padding: 20px;
-        margin: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        max-width: 600px;
-        margin: 0 auto;
+        background: white;
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .register h2 {
+        text-align: center;
+        font-size: 1.75rem;
+        color: var(--text-color);
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        font-size: 0.95rem;
+        color: #5f6368;
+        margin-bottom: 6px;
+    }
+
+    .form-group input {
+        font-size: 1rem;
+        padding: 14px;
+        border: none;
+        background: var(--input-bg);
+        border-radius: var(--border-radius);
+        outline: 2px solid transparent;
+        transition: outline 0.2s ease;
+    }
+
+    .form-group input:focus {
+        outline: 2px solid var(--primary);
+        background: white;
+    }
+
+    input[type="submit"] {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.3s ease;
+        width: 100%;
+    }
+
+    input[type="submit"]:hover {
+        background-color: var(--primary-dark);
     }
 
     .links {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 1rem;
+        font-size: 0.9rem;
     }
 
-    /* Add some styles to the form */
-    form {
-        text-align: center;
-    }
-
-    .form-group {
-        margin: 15px 0;
-        position: relative;
-    }
-
-    label {
-        position: absolute;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #333;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="email"] {
-        width: 100%;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 16px;
-        padding-left: 40px;
-    }
-
-    input[type="submit"] {
-        background-color: #453a2d;
-        color: #fff;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
+    .links a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
     }
 
     .msg {
-        color: red;
-        font-weight: normal;
-        margin-top: 10px;
+        text-align: center;
+        padding: 0.75rem;
+        background: #fdecea;
+        color: var(--error);
+        font-size: 0.9rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 500px) {
+        .register {
+            padding: 2rem 1.25rem;
+        }
     }
     .register {
     /* ... (your existing styles) */
@@ -88,7 +121,6 @@
     </div>
     <form action="{{ url_for('signup') }}" method="post" autocomplete="off" >
         <div class="form-group">
-            <label for="username">
                 <i class="fas fa-user"></i>
             </label>
             <input type="text" name="username" placeholder="Username" id="username" required>
@@ -108,5 +140,7 @@
         <div class="msg">{{ msg }}</div>
         <input type="submit" value="Register">
     </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
