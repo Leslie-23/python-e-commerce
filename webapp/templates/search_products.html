@@ -1,72 +1,260 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<section class="py-5">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-gradient mb-3">
+                <i class="fas fa-search me-3"></i>Advanced Product Search
+            </h1>
+            <p class="lead text-muted">Find exactly what you're looking for with our intelligent search</p>
+            <div class="divider mx-auto"></div>
+        </div>
 
-<html>
-<head>
-  <link rel="stylesheet" href="{{url_for('static', filename='main.css')}}">
-  <link href="https://fonts.googleapis.com/css?family=Acme|K2D" rel="stylesheet">
-  <link rel='icon' href="{{url_for('static', filename='logo.png')}}">
-</head>
-<body>
-  <div class="sticky">
-    <h1>C retailors</h1>
-  </div>
-  <div class="nav">
-    <p><a href="/">Home</a> > <a href="">Buy</a><p>
-  </div>
-  <ul class="headbar">
-    <li><a href="">Search Products</a></li>
-    <li><a href="./myorders">My Orders</a></li>
-    <li><a href="./cart">My Cart</a></li>
-    <li><a href="./purchases">My Purchases</a></li>
-  </ul>
-  <div class="centerthis">
-  <form action="" method="POST" onsubmit="return checkSelect()">
-    <h3><input type="radio" value="by keyword" name="search method" checked>Search by keyword</h3>
-    <input type="search" name="keyword" value="">
-    <br>
-   <h3><input type="radio" value="by category" name="search method">Search by category</h3>
-   <select name="category">
-    <option value="" disabled selected>SELECT CATEGORY</option>
-    <option value="Electronics and Tech">Electronics and Tech</option>
-    <option value="Fashion">Fashion</option>
-    <option value="Educational Utilities">Educational Utilities</option>
-    <option value="Entertainment and Recreation">Entertainment and Recreation</option>
-    <option value="Food and Groceries">Food and Groceries</option>
-    <option value="Daily Utilities">Daily Utilities</option>
-    <option value="Sports">Sports</option>
-    <option value="Luggage">Luggage</option>
-   </select>
-   <br>
-   <h3><input type="radio" value="both" name="search method">Both</h3>
-   <br>
-   <p><input type="submit" value="SEARCH"></p>
-  </form>
-  </div>
- <br><br>
- {% if after_srch %}
-  {% if results|length==0 %}
-    <p>No results match your search</p>
-  {% else %}
- <table>
-   <tr>
-     <th>SNo.</th><th>Name</th>
-     <th>Category</th><th>Price</th><th></th>
-   </tr>
-   {% set cnt={'val':1} %}
-   {% for i in results %}
-   <tr>
-     <td>{{cnt['val']}}</td> <td>{{i[1]}}</td>  <td>{{i[2]}}</td> <td>₹ {{i[3]}}</td>
-    <td><a href="/viewproduct/{{i[0]}}">View</a></td>
-   </tr>
-   {% if cnt.update({'val':(cnt['val']+1)}) %}{% endif %}
-   {% endfor %}
- </table>
- {% endif %}
- {% endif %}
- <script type="text/javascript" src="{{url_for('static', filename='main.js')}}"></script>
-</body>
-</html>
+        <!-- Search Form -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 search-card">
+                    <div class="card-body p-5">
+                        <form action="" method="POST" onsubmit="return checkSelect()">
+                            <!-- Search Method Selection -->
+                            <div class="search-methods mb-4">
+                                <h5 class="fw-bold mb-3 text-center">How would you like to search?</h5>
+                                
+                                <!-- Keyword Search -->
+                                <div class="form-check search-option mb-3 p-3">
+                                    <input class="form-check-input" type="radio" value="by keyword" 
+                                           name="search method" id="keyword-search" checked>
+                                    <label class="form-check-label fw-semibold" for="keyword-search">
+                                        <i class="fas fa-search text-primary me-2"></i>Search by keyword
+                                    </label>
+                                    <div class="mt-3" id="keyword-input">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-primary text-white">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="search" name="keyword" class="form-control form-control-lg" 
+                                                   placeholder="Enter product name, brand, or description...">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Category Search -->
+                                <div class="form-check search-option mb-3 p-3">
+                                    <input class="form-check-input" type="radio" value="by category" 
+                                           name="search method" id="category-search">
+                                    <label class="form-check-label fw-semibold" for="category-search">
+                                        <i class="fas fa-list text-success me-2"></i>Search by category
+                                    </label>
+                                    <div class="mt-3" id="category-input" style="display: none;">
+                                        <select name="category" class="form-select form-select-lg">
+                                            <option value="" disabled selected>SELECT CATEGORY</option>
+                                            <option value="Electronics and Tech">📱 Electronics and Tech</option>
+                                            <option value="Fashion">👕 Fashion</option>
+                                            <option value="Educational Utilities">📚 Educational Utilities</option>
+                                            <option value="Entertainment and Recreation">🎮 Entertainment and Recreation</option>
+                                            <option value="Food and Groceries">🛒 Food and Groceries</option>
+                                            <option value="Daily Utilities">🏠 Daily Utilities</option>
+                                            <option value="Sports">⚽ Sports</option>
+                                            <option value="Luggage">🧳 Luggage</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Combined Search -->
+                                <div class="form-check search-option mb-4 p-3">
+                                    <input class="form-check-input" type="radio" value="both" 
+                                           name="search method" id="both-search">
+                                    <label class="form-check-label fw-semibold" for="both-search">
+                                        <i class="fas fa-filter text-warning me-2"></i>Combined search (keyword + category)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 py-3 fw-semibold search-btn">
+                                    <i class="fas fa-search me-2"></i>SEARCH PRODUCTS
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        {% if after_srch %}
+        <div class="mt-5">
+            {% if results|length==0 %}
+            <!-- No Results -->
+            <div class="text-center py-5">
+                <div class="no-results-icon mb-4">
+                    <i class="fas fa-search fa-5x text-muted opacity-50"></i>
+                </div>
+                <h3 class="fw-bold mb-3">No products found</h3>
+                <p class="text-muted mb-4">Try adjusting your search criteria or browse our categories.</p>
+                <a href="{{ url_for('products') }}" class="btn btn-primary">
+                    <i class="fas fa-th-large me-2"></i>Browse All Categories
+                </a>
+            </div>
+            {% else %}
+            <!-- Results Found -->
+            <div class="results-header mb-4">
+                <h4 class="fw-bold">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Found {{ results|length }} product{{ 's' if results|length != 1 else '' }}
+                </h4>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover results-table">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set cnt={'val':1} %}
+                        {% for i in results %}
+                        <tr class="result-row">
+                            <td class="text-center fw-bold">{{ cnt['val'] }}</td>
+                            <td>
+                                <div class="product-name-cell">
+                                    <i class="fas fa-box text-primary me-2"></i>
+                                    {{ i[1] }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark">{{ i[2] }}</span>
+                            </td>
+                            <td>
+                                <span class="price-tag fw-bold text-success">₹ {{ i[3] }}</span>
+                            </td>
+                            <td class="text-center">
+                                <a href="/viewproduct/{{ i[0] }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% if cnt.update({'val':(cnt['val']+1)}) %}{% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.search-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.search-option {
+    border: 2px solid #e9ecef;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    background: rgba(248, 249, 250, 0.5);
+}
+
+.search-option:hover {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.search-option input:checked + label {
+    color: #007bff;
+}
+
+.search-btn {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+}
+
+.results-table {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.results-table thead th {
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+}
+
+.result-row {
+    transition: all 0.3s ease;
+}
+
+.result-row:hover {
+    background: rgba(0, 123, 255, 0.05);
+    transform: scale(1.01);
+}
+
+.product-name-cell {
+    font-weight: 500;
+}
+
+.price-tag {
+    font-size: 1.1rem;
+}
+
+.no-results-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+</style>
+
+<script>
+function checkSelect() {
+    // Add form validation logic here if needed
+    return true;
+}
+
+// Handle search method selection
+document.querySelectorAll('input[name="search method"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Hide all input sections
+        document.getElementById('keyword-input').style.display = 'none';
+        document.getElementById('category-input').style.display = 'none';
+        
+        // Show relevant input section
+        if (this.value === 'by keyword') {
+            document.getElementById('keyword-input').style.display = 'block';
+        } else if (this.value === 'by category') {
+            document.getElementById('category-input').style.display = 'block';
+        } else if (this.value === 'both') {
+            document.getElementById('keyword-input').style.display = 'block';
+            document.getElementById('category-input').style.display = 'block';
+        }
+    });
+});
+
+// Initialize the form
+document.getElementById('keyword-input').style.display = 'block';
+</script>
 
 {% endblock content %}

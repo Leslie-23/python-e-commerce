@@ -1,14 +1,119 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
-<!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
 {% if messages %}
-
-<div class="alert alert-danger">
-    <ul>
-        <!-- {% for category, message in messages %} -->
-            <li>{{ message }}</li>
-        <!-- {% endfor %} -->
-    </ul>
+<div class="alert-container">
+    {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show modern-alert" role="alert">
+            <div class="d-flex align-items-center">
+                <div class="alert-icon me-3">
+                    {% if category == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                    {% elif category == 'error' or category == 'danger' %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                    {% elif category == 'warning' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                    {% elif category == 'info' %}
+                        <i class="fas fa-info-circle"></i>
+                    {% else %}
+                        <i class="fas fa-bell"></i>
+                    {% endif %}
+                </div>
+                <div class="alert-content flex-grow-1">
+                    <strong>
+                        {% if category == 'success' %}Success!{% endif %}
+                        {% if category == 'error' or category == 'danger' %}Error!{% endif %}
+                        {% if category == 'warning' %}Warning!{% endif %}
+                        {% if category == 'info' %}Info:{% endif %}
+                    </strong>
+                    {{ message }}
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
 </div>
 
+<style>
+.alert-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 400px;
+}
+
+.modern-alert {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    margin-bottom: 1rem;
+    animation: slideInRight 0.5s ease-out;
+}
+
+.alert-success {
+    background: rgba(40, 167, 69, 0.1);
+    border-left: 4px solid #28a745;
+    color: #155724;
+}
+
+.alert-danger {
+    background: rgba(220, 53, 69, 0.1);
+    border-left: 4px solid #dc3545;
+    color: #721c24;
+}
+
+.alert-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border-left: 4px solid #ffc107;
+    color: #856404;
+}
+
+.alert-info {
+    background: rgba(23, 162, 184, 0.1);
+    border-left: 4px solid #17a2b8;
+    color: #0c5460;
+}
+
+.alert-icon {
+    font-size: 1.2rem;
+}
+
+.alert-content {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .alert-container {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+</style>
+
+<script>
+// Auto-dismiss alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.modern-alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+</script>
 {% endif %}
 {% endwith %}

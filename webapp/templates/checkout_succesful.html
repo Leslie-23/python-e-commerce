@@ -1,100 +1,196 @@
 {% extends "layout.html" %}
 {% block content %}
+
+<section class="py-5 min-vh-100 d-flex align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <!-- Success Card -->
+        <div class="card border-0 shadow-lg overflow-hidden">
+          <div class="card-header bg-gradient text-white text-center py-5">
+            <div class="success-animation mb-4">
+              <div class="checkmark-circle">
+                <i class="fas fa-check"></i>
+              </div>
+            </div>
+            <h1 class="display-5 fw-bold mb-3">Order Successful!</h1>
+            <p class="lead mb-0 opacity-90">Thank you for your purchase</p>
+          </div>
+          
+          <div class="card-body p-5">
+            <!-- Success Image -->
+            <div class="text-center mb-5">
+              <img src="/static/checkout-success.webp" 
+                   alt="Order Success" 
+                   class="success-image img-fluid rounded-3 shadow-sm">
+            </div>
+
+            <!-- Order Details -->
+            <div class="order-details mb-5">
+              <h3 class="h4 fw-bold mb-4 text-center">
+                <i class="fas fa-package me-2 text-primary"></i>Order Details
+              </h3>
+              
+              {% if names %}
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-dark">
+                    <tr>
+                      <th class="border-0">
+                        <i class="fas fa-box me-2"></i>Product
+                      </th>
+                      <th class="border-0">
+                        <i class="fas fa-truck me-2"></i>Estimated Delivery
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for name, delivery_time in names %}
+                    <tr class="order-item">
+                      <td class="fw-semibold">{{ name }}</td>
+                      <td>
+                        <span class="badge bg-success fs-6">{{ delivery_time }}</span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Next Steps -->
+            <div class="next-steps">
+              <h4 class="fw-bold mb-4 text-center">What happens next?</h4>
+              <div class="row g-3">
+                <div class="col-md-4 text-center">
+                  <div class="step-icon mb-3">
+                    <i class="fas fa-email fa-2x text-primary"></i>
+                  </div>
+                  <h6 class="fw-semibold">Confirmation Email</h6>
+                  <small class="text-muted">You'll receive an order confirmation via email</small>
+                </div>
+                <div class="col-md-4 text-center">
+                  <div class="step-icon mb-3">
+                    <i class="fas fa-cog fa-2x text-warning"></i>
+                  </div>
+                  <h6 class="fw-semibold">Processing</h6>
+                  <small class="text-muted">We'll prepare your items for shipment</small>
+                </div>
+                <div class="col-md-4 text-center">
+                  <div class="step-icon mb-3">
+                    <i class="fas fa-shipping-fast fa-2x text-success"></i>
+                  </div>
+                  <h6 class="fw-semibold">Delivery</h6>
+                  <small class="text-muted">Your order will arrive as scheduled</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-5">
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{{ url_for('products') }}" class="btn btn-primary btn-lg me-md-2">
+                  <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                </a>
+                <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-lg">
+                  <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <style>
-  /* Container styles */
-  .containerr {
-    text-align: center;
-    padding: 30px;
-    border-radius: 15px;
-    background: rgba(242, 242, 242,0.5);
-    backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 70, 0.37);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.18); 
-    margin-bottom: 20px;
-  }
+.success-animation {
+  animation: slideInDown 0.8s ease-out;
+}
 
-  /* Header styles */
-  .header {
-    margin-bottom: 20px;
-    background-color: transparent ;/* Background color for the header */
-    color: #fff; /* Text color for the header */
-    padding: 10px;
-    border-radius: 5px;
-    align-items: center;
-  }
+.checkmark-circle {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  animation: pulse 2s ease-in-out infinite;
+}
 
-  .ty {
-    max-width: 100%;
-    height: auto;
-    border-radius: 15px;
-    max-width: 90%;
-  }
+.checkmark-circle i {
+  font-size: 2rem;
+  color: white;
+}
 
-  /* Table styles */
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff; /* Background color for the table */
-    border: 2px solid #ccc; 
-    /* Border around the table */
-  }
+.success-image {
+  max-width: 300px;
+  transition: transform 0.3s ease;
+}
 
-  .table th, .table td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-  }
+.success-image:hover {
+  transform: scale(1.05);
+}
 
-  .table th {
-    background-color: rgba(69, 58, 45,0.9); /* Background color for table headers */
-    color: #fff; /* Text color for table headers */
-  }
+.order-item {
+  transition: background-color 0.3s ease;
+}
 
-  /* Table row styles (alternating colors) */
-  .table tbody tr:nth-child(even) {
-    background-color: #f2f2f2; /* Alternate row background color */
-  }
+.order-item:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
 
-  /* Additional styles */
-  .table a {
-    color: #007bff; /* Link color in the table (if any) */
-    text-decoration: none;
-  }
+.step-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(248, 249, 250, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+}
 
-  .table a:hover {
-    text-decoration: underline;
-  }
-  #txt{
-    color: #26103d;
-    font-size: 60px;
-  }
+.step-icon:hover {
+  transform: translateY(-5px);
+}
 
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.badge {
+  padding: 0.5rem 1rem;
+}
 </style>
 
-<div class="containerr">
-  <div class="header">
-    <img src="/static/checkout-success.webp" alt="Thank You" class ="ty" />
-    <div id = "txt">Thank you for the purchase!</div>
-  </div>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Product</th>
-        <th>Estimated delivery time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for name, number in names %}
-        <tr>
-          <td>{{ name }}</td>
-          <td>{{ number }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+{% endblock %}
 
 {% endblock %}

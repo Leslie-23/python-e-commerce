@@ -379,3 +379,7 @@ app.config['SECRET_KEY'] = os.urandom(17)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 sess.init_app(app)
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")  # Ensure you have a `contact.html` template

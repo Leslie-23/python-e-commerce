@@ -1,42 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Configuration -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %} - PAL Store</title>
+    <meta name="description" content="PAL Store - Your trusted online store for quality products.">
+    <meta name="author" content="PAL Store Team">
+    <meta name="theme-color" content="#4CAF50">
+
+    <!-- Page Title -->
+    <title>{% block title %}PAL Store{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <!-- Include additional head content here -->
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
+
+    <!-- Allow other templates to inject additional head content -->
+    {% block head %}{% endblock %}
 </head>
 
 <body>
-    <nav class="navbar">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-0" role="navigation" aria-label="main navigation">
         <div class="container">
-            <a href="/" class="nav-brand">PAL Store</a>
-            <ul class="nav-links">
-                <li><a href="/" class="nav-link">Home</a></li>
-                <li><a href="/products" class="nav-link">Products</a></li>
-                <li><a href="/about" class="nav-link">About</a></li>
-                <li><a href="/contact" class="nav-link">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
+            <a href="{{ url_for('home') }}" class="navbar-brand fw-bold fs-3 text-success" aria-label="Go to homepage">
+                <i class="fas fa-store me-2"></i>PAL Store
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a href="{{ url_for('home') }}" class="nav-link fw-semibold">Home</a></li>
+                    <li class="nav-item"><a href="{{ url_for('products') }}" class="nav-link fw-semibold">Products</a></li>
+                    {# <li class="nav-item"><a href="{{ url_for('about') }}" class="nav-link">About</a></li> #}
+                    <li class="nav-item"><a href="{{ url_for('contact') }}" class="nav-link fw-semibold">Contact</a></li>
+                    <li class="nav-item"><a href="{{ url_for('login') }}" class="nav-link btn btn-outline-success me-2 fw-semibold">Login</a></li>
+                    <li class="nav-item"><a href="{{ url_for('signup') }}" class="nav-link btn btn-success text-white fw-semibold">Register</a></li>
+                </ul>
+            </div>
+        </div>    </nav>
 
-    <main class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="card shadow mt-2">
-                    {% for message in messages %}
-                        <div class="alert">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
+    <!-- Flash Messages -->
+    {% include 'alert.html' %}
+    
+    <main class="container my-4">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="mt-4 p-2 text-center">
-        <p>&copy; 2023 PAL Store. All rights reserved.</p>
+    <!-- Footer -->
+    <footer class="bg-light mt-5 py-4 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="fw-bold text-success">PAL Store</h5>
+                    <p class="text-muted">Your trusted online store for quality products.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted">&copy; {{ current_year | default(2024) }} PAL Store. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
     </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    {% block scripts %}{% endblock %}
 </body>
 </html>
