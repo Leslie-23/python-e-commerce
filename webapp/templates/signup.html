@@ -1,146 +1,1614 @@
-{% extends 'layout.html' %}
-{% block title %} {{ title }} {% endblock %}
-{% block content %}
-<style>
-    /* Add some styles to the background image and container */
-    body {
-        margin: 0;
-        padding: 0;
-    }
-
-    .page-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        padding: 1rem;
-    }
-
-    .register {
-        background: white;
-        padding: 2.5rem;
-        border-radius: var(--border-radius);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        max-width: 420px;
-        width: 100%;
-    }
-
-    .register h2 {
-        text-align: center;
-        font-size: 1.75rem;
-        color: var(--text-color);
-        margin-bottom: 1.5rem;
-        font-weight: 500;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        font-size: 0.95rem;
-        color: #5f6368;
-        margin-bottom: 6px;
-    }
-
-    .form-group input {
-        font-size: 1rem;
-        padding: 14px;
-        border: none;
-        background: var(--input-bg);
-        border-radius: var(--border-radius);
-        outline: 2px solid transparent;
-        transition: outline 0.2s ease;
-    }
-
-    .form-group input:focus {
-        outline: 2px solid var(--primary);
-        background: white;
-    }
-
-    input[type="submit"] {
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        padding: 14px;
-        border-radius: var(--border-radius);
-        font-size: 1rem;
-        cursor: pointer;
-        font-weight: 500;
-        transition: background 0.3s ease;
-        width: 100%;
-    }
-
-    input[type="submit"]:hover {
-        background-color: var(--primary-dark);
-    }
-
-    .links {
-        text-align: center;
-        margin-top: 1rem;
-        font-size: 0.9rem;
-    }
-
-    .links a {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-    .msg {
-        text-align: center;
-        padding: 0.75rem;
-        background: #fdecea;
-        color: var(--error);
-        font-size: 0.9rem;
-        border-radius: var(--border-radius);
-        margin-bottom: 1rem;
-    }
-
-    @media (max-width: 500px) {
-        .register {
-            padding: 2rem 1.25rem;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EliteFit Gym - Transform Your Body</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #d4af37;
+            --secondary: #1a1a1a;
+            --dark: #0d0d0d;
+            --light: #1f1f1f;
+            --accent: #ff6b35;
+            --text-light: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --gradient-primary: linear-gradient(135deg, #d4af37, #f4d03f);
+            --gradient-secondary: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            --gradient-dark: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+            --shadow-light: 0 10px 30px rgba(0,0,0,0.3);
+            --shadow-heavy: 0 20px 60px rgba(0,0,0,0.5);
+            --border-color: rgba(212, 175, 55, 0.2);
         }
-    }
-    .register {
-    /* ... (your existing styles) */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-</style>
 
-<div class="register">
-    {% include "alert.html" %}
-    
-    <div class="links">
-        <p>Already a user ? <a href="{{ url_for('login') }}">login</a></p>
-    </div>
-    <form action="{{ url_for('signup') }}" method="post" autocomplete="off" >
-        <div class="form-group">
-                <i class="fas fa-user"></i>
-            </label>
-            <input type="text" name="username" placeholder="Username" id="username" required>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-light);
+            background-color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* Loading animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+            }
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header.scrolled {
+            background: rgba(13, 13, 13, 0.98);
+            padding: 0.7rem 5%;
+            box-shadow: var(--shadow-light);
+        }
+
+        .logo {
+            color: var(--text-light);
+            font-size: 2rem;
+            font-weight: 900;
+            text-decoration: none;
+            animation: slideInLeft 1s ease-out;
+            position: relative;
+        }
+
+        .logo span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        .logo:hover::after {
+            width: 100%;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            animation: slideInRight 1s ease-out;
+        }
+
+        nav ul li {
+            margin-left: 2rem;
+            position: relative;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::before {
+            width: 100%;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .cta-button {
+            background: var(--gradient-primary);
+            color: var(--dark);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+            animation: glow 1.5s infinite;
+        }
+
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-light);
+            padding: 0 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(212, 175, 55, 0.1) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            font-weight: 900;
+            animation: fadeInUp 1s ease-out 0.5s both;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .hero-content h1 span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s infinite;
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 1s ease-out 0.7s both;
+            opacity: 0.9;
+            color: var(--text-muted);
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.9s both;
+        }
+
+        .hero-buttons .cta-button:nth-child(2) {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-buttons .cta-button:nth-child(2):hover {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        /* Floating elements */
+        .floating-element {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-element:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--primary);
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .scroll-indicator i {
+            font-size: 2rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 5%;
+            background: var(--light);
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .section-title.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            background: var(--dark);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-light);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 4rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 5rem 5%;
+            background: var(--gradient-dark);
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .stat-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Quote Section */
+        .quote-section {
+            padding: 5rem 5%;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
+                        url('https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            color: var(--text-light);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(212,175,55,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+
+        .quote {
+            font-size: 2.2rem;
+            font-style: italic;
+            font-weight: 300;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .quote.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .quote:before, .quote:after {
+            content: '"';
+            font-size: 4rem;
+            color: rgba(212, 175, 55, 0.3);
+            position: absolute;
+            font-family: serif;
+        }
+
+        .quote:before {
+            top: -20px;
+            left: -40px;
+        }
+
+        .quote:after {
+            bottom: -40px;
+            right: -40px;
+        }
+
+        .quote-author {
+            margin-top: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        /* Gallery Section */
+        .gallery {
+            padding: 6rem 5%;
+            background: var(--dark);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .gallery-item {
+            height: 300px;
+            overflow: hidden;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.6s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        .gallery-item.animate {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gallery-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(212, 175, 55, 0.8), rgba(13, 13, 13, 0.8));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+
+        .gallery-item:hover::before {
+            opacity: 1;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-item::after {
+            content: '🔍';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: var(--text-light);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 3;
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        /* Additional Gallery Section */
+        .equipment-showcase {
+            padding: 6rem 5%;
+            background: var(--light);
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .equipment-item {
+            background: var(--dark);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .equipment-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .equipment-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .equipment-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .equipment-info {
+            padding: 1.5rem;
+        }
+
+        .equipment-info h4 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .equipment-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 6rem 5%;
+            background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), 
+                        url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            color: var(--text-light);
+            text-align: center;
+            position: relative;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
+        }
+
+        .testimonial-card {
+            background: rgba(13, 13, 13, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .testimonial-card.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            background: rgba(13, 13, 13, 0.9);
+            border-color: var(--primary);
+        }
+
+        .testimonial-card .quote {
+            font-size: 1.1rem;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: var(--text-light);
+        }
+
+        .testimonial-card .author {
+            display: flex;
+            align-items: center;
+        }
+
+        .author img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+
+        .author h4 {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: var(--primary);
+        }
+
+        .author p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Contact Section */
+        .contact-form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--dark);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-light);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .contact-form-container.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: var(--light);
+            color: var(--text-light);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 5%;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
+                        url('https://images.unsplash.com/photo-1550345332-09e3ac987658?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            color: var(--text-light);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(212,175,55,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(212,175,55,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(212,175,55,0.1)"/></svg>');
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            position: relative;
+            z-index: 2;
+            color: var(--text-muted);
+        }
+
+        .cta-section .cta-button {
+            background: var(--gradient-primary);
+            color: var(--dark);
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--text-light);
+            padding: 4rem 5% 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-icons {
+            margin-bottom: 2rem;
+        }
+
+        .social-icons a {
+            color: var(--text-light);
+            font-size: 1.8rem;
+            margin: 0 1rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .social-icons a:hover {
+            color: var(--primary);
+            transform: translateY(-3px) scale(1.1);
+        }
+
+        /* Popup */
+        #sent-popup {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: var(--gradient-primary);
+            color: var(--dark);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            opacity: 0;
+            pointer-events: none;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-heavy);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(40px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(13, 13, 13, 0.98);
+                flex-direction: column;
+                padding: 2rem 5%;
+                backdrop-filter: blur(10px);
+                border-top: 1px solid var(--border-color);
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quote {
+                font-size: 1.5rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .equipment-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .floating-element {
+                display: none;
+            }
+        }
+
+        /* Intersection Observer Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.6s ease;
+        }
+
+        .slide-in-left.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s ease;
+        }
+
+        .slide-in-right.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <header id="header">
+        <a href="#" class="logo">Elite<span>Fit</span></a>
+        <nav id="nav">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#equipment">Equipment</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="login/index.php" class="cta-button">Login</a></li>
+                <li><a href="register/index.php" class="cta-button">Register</a></li>
+            </ul>
+        </nav>
+        <div class="menu-toggle" id="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
-        <div class="form-group">
-            <label for="password">
-                <i class="fas fa-lock"></i>
-            </label>
-            <input type="password" name="password" placeholder="Password" id="password" required>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="floating-element">💪</div>
+        <div class="floating-element">🏋️</div>
+        <div class="floating-element">⚡</div>
+        
+        <div class="hero-content">
+            <h1>Transform Your Body <span>Transform Your Life</span></h1>
+            <p>Join EliteFit today and get access to world-class equipment, expert trainers, and a community that supports your fitness journey every step of the way.</p>
+            <div class="hero-buttons">
+                <a href="register/index.php" class="cta-button">Start Your Journey</a>
+                <a href="#features" class="cta-button">Discover More</a>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="email">
-                <i class="fas fa-envelope"></i>
-            </label>
-            <input type="email" name="email" placeholder="Email" id="email" required>
+        
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
         </div>
-        <div class="msg">{{ msg }}</div>
-        <input type="submit" value="Register">
-    </form>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="section-title fade-in">
+            <h2>Our Numbers Speak</h2>
+            <p>Years of excellence in fitness transformation</p>
         </div>
-    </div>
-</div>
-{% endblock %}
+        <div class="stats-grid">
+            <div class="stat-item fade-in">
+                <span class="stat-number">5000+</span>
+                <span class="stat-label">Happy Members</span>
+            </div>
+            <div class="stat-item fade-in">
+                <span class="stat-number">15+</span>
+                <span class="stat-label">Expert Trainers</span>
+            </div>
+            <div class="stat-item fade-in">
+                <span class="stat-number">10+</span>
+                <span class="stat-label">Years Experience</span>
+            </div>
+            <div class="stat-item fade-in">
+                <span class="stat-number">24/7</span>
+                <span class="stat-label">Access Available</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-title fade-in">
+            <h2>Why Choose EliteFit?</h2>
+            <p>We provide everything you need to achieve your fitness goals with cutting-edge facilities and expert guidance</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <h3>Premium Equipment</h3>
+                <p>State-of-the-art fitness equipment from leading brands, regularly maintained and updated to ensure optimal performance and safety for all your workout needs.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3>Expert Trainers</h3>
+                <p>Certified personal trainers with years of experience to guide you through every step of your fitness journey with personalized programs tailored to your goals.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <h3>Health Monitoring</h3>
+                <p>Comprehensive health assessments and progress tracking to ensure you're on the right path to achieving your fitness goals with measurable results.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Community Support</h3>
+                <p>Join a motivating community of like-minded individuals who support each other's fitness journeys and celebrate achievements together.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Flexible Hours</h3>
+                <p>24/7 access to our facilities so you can work out on your schedule, whether you're an early bird or prefer late-night training sessions.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h3>Proven Results</h3>
+                <p>Track record of helping thousands of members achieve their fitness goals with our proven training methodologies and nutrition guidance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Motivational Quote -->
+    <section class="quote-section">
+        <div class="quote fade-in">
+            The only bad workout is the one that didn't happen
+            <div class="quote-author">- Fitness Philosophy</div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+        <div class="section-title fade-in">
+            <h2>Our World-Class Facilities</h2>
+            <p>Take a virtual tour of our premium gym facilities designed for your success</p>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Modern Gym Equipment">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Personal Training Session">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1571019614245-c5f2c0ed8c72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Group Fitness Class">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Cardio Training Area">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Strength Training Zone">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="CrossFit Training Area">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Yoga and Stretching Studio">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="https://images.unsplash.com/photo-1549060279-7e168fcee0c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Boxing Training Area">
+            </div>
+        </div>
+    </section>
+
+    <!-- Equipment Showcase -->
+    <section class="equipment-showcase" id="equipment">
+        <div class="section-title fade-in">
+            <h2>Premium Equipment</h2>
+            <p>Professional-grade equipment for every type of workout</p>
+        </div>
+        <div class="equipment-grid">
+            <div class="equipment-item fade-in">
+                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Free Weights">
+                <div class="equipment-info">
+                    <h4>Free Weights</h4>
+                    <p>Complete range of dumbbells and barbells for strength training</p>
+                </div>
+            </div>
+            <div class="equipment-item fade-in">
+                <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Cardio Machines">
+                <div class="equipment-info">
+                    <h4>Cardio Machines</h4>
+                    <p>State-of-the-art treadmills, ellipticals, and bikes</p>
+                </div>
+            </div>
+            <div class="equipment-item fade-in">
+                <img src="https://images.unsplash.com/photo-1549060279-7e168fcee0c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Boxing Equipment">
+                <div class="equipment-info">
+                    <h4>Boxing Equipment</h4>
+                    <p>Professional boxing bags and training gear</p>
+                </div>
+            </div>
+            <div class="equipment-item fade-in">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Functional Training">
+                <div class="equipment-info">
+                    <h4>Functional Training</h4>
+                    <p>TRX, kettlebells, and functional movement tools</p>
+                </div>
+            </div>
+            <div class="equipment-item fade-in">
+                <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="CrossFit Equipment">
+                <div class="equipment-info">
+                    <h4>CrossFit Equipment</h4>
+                    <p>Olympic lifting platforms and CrossFit gear</p>
+                </div>
+            </div>
+            <div class="equipment-item fade-in">
+                <img src="https://images.unsplash.com/photo-1534367507873-d2d7e24c797a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Recovery Zone">
+                <div class="equipment-info">
+                    <h4>Recovery Zone</h4>
+                    <p>Massage chairs, foam rollers, and recovery tools</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-title fade-in">
+            <h2>Success Stories</h2>
+            <p>Hear from real people who transformed their lives with EliteFit</p>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card fade-in">
+                <p class="quote">"EliteFit completely changed my life. I lost 30 pounds in 3 months with their expert guidance and incredible support system. The trainers really care about your success and push you to achieve more than you thought possible."</p>
+                <div class="author">
+                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J.">
+                    <div>
+                        <h4>Sarah Johnson</h4>
+                        <p>Member since 2020</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-in">
+                <p class="quote">"The trainers here are absolutely amazing. They pushed me beyond what I thought was possible and helped me achieve goals I never imagined I could reach. The community support is incredible too."</p>
+                <div class="author">
+                    <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Mike T.">
+                    <div>
+                        <h4>Mike Thompson</h4>
+                        <p>Member since 2019</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-in">
+                <p class="quote">"Best gym I've ever joined. The community here is incredibly supportive and motivating. It's more than just a gym - it's a lifestyle transformation. The equipment is top-notch and always well-maintained."</p>
+                <div class="author">
+                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Lisa M.">
+                    <div>
+                        <h4>Lisa Martinez</h4>
+                        <p>Member since 2021</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-in">
+                <p class="quote">"I've been training here for 2 years and the results speak for themselves. The personal training sessions are worth every penny. My strength and confidence have improved dramatically."</p>
+                <div class="author">
+                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David R.">
+                    <div>
+                        <h4>David Rodriguez</h4>
+                        <p>Member since 2022</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Another Motivational Quote -->
+    <section class="quote-section">
+        <div class="quote fade-in">
+            Success starts with self-discipline. The first thing you must conquer is yourself.
+            <div class="quote-author">- Michael Phelps</div>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section class="features" id="contact">
+        <div class="section-title fade-in">
+            <h2>Get In Touch</h2>
+            <p>Ready to start your fitness journey? Contact us today and let's make it happen together!</p>
+        </div>
+        <div class="contact-form-container fade-in">
+            <form id="contactForm" action="send_mail.php" method="post">
+                <input type="hidden" name="recipient_email" value="atakorahe57@gmail.com">
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Your Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Your Email Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="tel" name="phone" placeholder="Your Phone Number">
+                </div>
+                <div class="form-group">
+                    <textarea name="message" placeholder="Tell us about your fitness goals and how we can help you achieve them..." required></textarea>
+                </div>
+                <button type="submit" class="cta-button" style="width: 100%; margin-top: 1rem;">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to Transform Your Life?</h2>
+        <p>Join thousands of satisfied members who have already transformed their lives with EliteFit. Your journey to a healthier, stronger you starts today.</p>
+        <a href="register/index.php" class="cta-button">Start Your Transformation</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#gallery">Gallery</a>
+            <a href="#equipment">Equipment</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#contact">Contact</a>
+            <a href="login">Login</a>
+            <a href="register/index.php">Register</a>
+        </div>
+        <div class="social-icons">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+        </div>
+        <p>&copy; 2024 EliteFit Gym. All rights reserved. Transform your body, transform your life.</p>
+    </footer>
+
+    <!-- Success Popup -->
+    <div id="sent-popup">Message sent successfully!</div>
+
+    <script>
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements with animation classes
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right, .section-title, .feature-card, .gallery-item, .equipment-item, .testimonial-card, .contact-form-container, .quote, .stat-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const nav = document.querySelector('nav ul');
+
+        menuToggle.addEventListener('click', function() {
+            nav.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+                // Close mobile menu if open
+                nav.classList.remove('active');
+                menuToggle.classList.remove('active');
+            });
+        });
+
+        // Contact form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const popup = document.getElementById('sent-popup');
+            const contactForm = document.getElementById('contactForm');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show loading state
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.textContent = 'Sending...';
+                    submitBtn.disabled = true;
+                    
+                    var formData = new FormData(this);
+                    fetch('send_mail.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data.trim().toLowerCase().includes('sent')) {
+                            popup.textContent = '✅ Your message was sent successfully!';
+                            popup.style.background = 'linear-gradient(135deg, #d4af37, #f4d03f)';
+                            showPopup();
+                            contactForm.reset();
+                        } else {
+                            popup.textContent = '❌ ' + data;
+                            popup.style.background = 'linear-gradient(135deg, #ff6b35, #ff8c42)';
+                            showPopup();
+                        }
+                    })
+                    .catch(error => {
+                        popup.textContent = '❌ Failed to send message. Please try again.';
+                        popup.style.background = 'linear-gradient(135deg, #ff6b35, #ff8c42)';
+                        showPopup();
+                    })
+                    .finally(() => {
+                        // Reset button state
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                    });
+                });
+            }
+            
+            function showPopup() {
+                popup.style.opacity = '1';
+                popup.style.pointerEvents = 'auto';
+                popup.style.transform = 'translateY(0)';
+                setTimeout(() => {
+                    popup.style.opacity = '0';
+                    popup.style.pointerEvents = 'none';
+                    popup.style.transform = 'translateY(40px)';
+                }, 3000);
+            }
+        });
+
+        // Parallax effect for hero section
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero && window.innerWidth > 768) {
+                hero.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+
+        // Counter animation for stats
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current) + (element.textContent.includes('+') ? '+' : '');
+            }, 20);
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach(stat => {
+                        const target = parseInt(stat.textContent.replace(/\D/g, ''));
+                        animateCounter(stat, target);
+                    });
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+
+        // Add loading animation
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '1';
+        });
+
+        // Preload critical images
+        const criticalImages = [
+            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+            'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+            'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+        ];
+
+        criticalImages.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+
+        // Add dynamic glow effect to buttons
+        document.querySelectorAll('.cta-button').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.animation = 'glow 1.5s infinite';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.animation = '';
+            });
+        });
+    </script>
+</body>
+</html>
