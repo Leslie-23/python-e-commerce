@@ -3,141 +3,142 @@
 {% block content %}
 <style>
     :root {
-        --primary-green: #4CAF50;
-        --dark-black: #212121;
-        --pure-white: #FFFFFF;
-        --hover-green: #45a049;
+        --primary: #0ba153;
+        --primary-dark: #0c47a1;
+        --error: #d93025;
+        --input-bg: #f1f3f4;
+        --text-color: #202124;
+        --border-radius: 8px;
     }
 
     body {
-        background-image: url('/static/main-backdrop.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
         padding: 0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
-    .form-container {
-        background: rgba(255, 255, 255, 0.95);
+    .page-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+    }
+
+    .register {
+        background: white;
         padding: 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 420px;
         width: 100%;
-        max-width: 400px;
-        margin: 1rem;
-        border: 1px solid var(--primary-green);
+    }
+
+    .register h2 {
+        text-align: center;
+        font-size: 1.75rem;
+        color: var(--text-color);
+        margin-bottom: 1.5rem;
+        font-weight: 500;
     }
 
     .form-group {
-        margin: 1.5rem 0;
-        position: relative;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.5rem;
     }
 
-    input[type="text"],
-    input[type="password"],
-    input[type="email"] {
-        width: 100%;
-        padding: 12px 12px 12px 40px;
-        border: 2px solid #e0e0e0;
-        border-radius: 6px;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        background: var(--pure-white);
+    .form-group label {
+        font-size: 0.95rem;
+        color: #5f6368;
+        margin-bottom: 6px;
     }
 
-    input:focus {
-        outline: none;
-        border-color: var(--primary-green);
-        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    .form-group input {
+        font-size: 1rem;
+        padding: 14px;
+        border: none;
+        background: var(--input-bg);
+        border-radius: var(--border-radius);
+        outline: 2px solid transparent;
+        transition: outline 0.2s ease;
     }
 
-    label {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--primary-green);
+    .form-group input:focus {
+        outline: 2px solid var(--primary);
+        background: white;
     }
 
     input[type="submit"] {
-        background-color: var(--primary-green);
-        color: var(--pure-white);
+        background-color: var(--primary);
+        color: white;
         border: none;
-        padding: 12px 24px;
-        border-radius: 6px;
+        padding: 14px;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
         cursor: pointer;
-        font-weight: 600;
+        font-weight: 500;
+        transition: background 0.3s ease;
         width: 100%;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     input[type="submit"]:hover {
-        background-color: var(--dark-black);
+        background-color: var(--primary-dark);
     }
 
     .links {
         text-align: center;
-        margin: 1.5rem 0;
-        color: var(--dark-black);
+        margin-top: 1rem;
+        font-size: 0.9rem;
     }
 
     .links a {
-        color: var(--primary-green);
-        font-weight: 600;
+        color: var(--primary);
         text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-    .links a:hover {
-        color: var(--dark-black);
+        font-weight: 500;
     }
 
     .msg {
-        color: #d32f2f;
-        font-weight: 500;
-        margin: 1rem 0;
         text-align: center;
-        padding: 8px;
-        background: #ffebee;
-        border-radius: 4px;
+        padding: 0.75rem;
+        background: #fdecea;
+        color: var(--error);
+        font-size: 0.9rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
     }
 
-    @media (max-width: 480px) {
-        .form-container {
-            padding: 1.5rem;
-            margin: 1rem;
+    @media (max-width: 500px) {
+        .register {
+            padding: 2rem 1.25rem;
         }
     }
 </style>
 
-<div class="form-container">
-    {% include "alert.html" %}
-    <div class="links">
-        <p>Not a user already? <a href="{{ url_for('signup') }}">Register here</a></p>
+<div class="page-container">
+    <div class="register">
+        <h2>Welcome Back</h2>
+        {% include "alert.html" %}
+
+        <form action="{{ url_for('login') }}" method="post">
+            <div class="form-group">
+                <label for="username">Username
+                    <i class="fas fa-user"></i>
+                </label>
+                <input type="text" name="username" placeholder="Username" id="username" required>
+
+            </div>
+            <div class="form-group">
+                <label for="password">Password
+                    <i class="fas fa-lock"></i>
+                </label>
+                <input type="password" name="password" placeholder="Password" id="password" required>
+            </div>
+            <!-- <div class="msg">{{ msg }}</div> -->
+            <input type="submit" value="Sign In">
+            <div class="links">
+                <p>Not a user already? <a href="{{ url_for('signup') }}">Register here</a></p>
+            </div>
+        </form>
     </div>
-    <form action="{{ url_for('login') }}" method="post">
-        <div class="form-group">
-            <label for="username">
-                <i class="fas fa-user"></i>
-            </label>
-            <input type="text" name="username" placeholder="Username" id="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">
-                <i class="fas fa-lock"></i>
-            </label>
-            <input type="password" name="password" placeholder="Password" id="password" required>
-        </div>
-        <div class="msg">{{ msg }}</div>
-        <input type="submit" value="Login">
-    </form>
 </div>
 {% endblock %}
