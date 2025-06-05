@@ -176,7 +176,7 @@ def search_products():
 def cart():
     # Check if the user is signed in
 
-    signedin = session['signedin']
+    signedin = session.get("signedin", False)
     if signedin is True:
         username = session['username']
         cart = get_cart(session['userid'])
@@ -233,7 +233,7 @@ def checkout():
     # need to show an estimated delivary time , total prices should be fetched from the cart
     # get_cart()
 
-    is_logged = session['signedin']
+    is_logged = session.get("signedin", False)
 
     if is_logged is True:
         user_id = session['userid']
@@ -270,7 +270,7 @@ def checkout_successful():
         # Process other form data here as necessary
         city = request.form.get('city')  # Assuming 'city' is the name attribute of the city input field
 
-        signedin = session['signedin']
+        signedin = session.get("signedin", False)
         order_id = gen_orderID()
         # need to update the order table in order to get rid of the foregin key constraint
 
