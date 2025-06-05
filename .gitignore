@@ -1,5 +1,47 @@
-/flask_session/
-/__pycache__/
-/.idea/
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Flask Session Files
+flask_session/
+
+# Python Cache  
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Database
+*.db
+*.sqlite3
+
+# Environment Variables
+.env
+.env.local
 /webapp/dbInitialData/.env
-/webapp/__pycache__/
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage Reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
