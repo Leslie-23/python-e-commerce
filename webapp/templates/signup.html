@@ -2,15 +2,7 @@
 {% block title %} {{ title }} {% endblock %}
 {% block content %}
 <style>
-    :root {
-        --primary: #0ba153;
-        --primary-dark: #0c47a1;
-        --error: #d93025;
-        --input-bg: #f1f3f4;
-        --text-color: #202124;
-        --border-radius: 8px;
-    }
-
+    /* Add some styles to the background image and container */
     body {
         margin: 0;
         padding: 0;
@@ -112,35 +104,43 @@
             padding: 2rem 1.25rem;
         }
     }
+    .register {
+    /* ... (your existing styles) */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
 </style>
 
-<div class="page-container">
-    <div class="register">
-        <h2>Create your Account</h2>
-        {% include "alert.html" %}
-        {% if msg %}
+<div class="register">
+    {% include "alert.html" %}
+    
+    <div class="links">
+        <p>Already a user ? <a href="{{ url_for('login') }}">login</a></p>
+    </div>
+    <form action="{{ url_for('signup') }}" method="post" autocomplete="off" >
+        <div class="form-group">
+                <i class="fas fa-user"></i>
+            </label>
+            <input type="text" name="username" placeholder="Username" id="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">
+                <i class="fas fa-lock"></i>
+            </label>
+            <input type="password" name="password" placeholder="Password" id="password" required>
+        </div>
+        <div class="form-group">
+            <label for="email">
+                <i class="fas fa-envelope"></i>
+            </label>
+            <input type="email" name="email" placeholder="Email" id="email" required>
+        </div>
         <div class="msg">{{ msg }}</div>
-        {% endif %}
-
-        <form action="{{ url_for('signup') }}" method="post" autocomplete="off">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username" required />
-            </div>
-            <div class="form-group">
-                <label for="email">Email address</label>
-                <input type="email" name="email" id="email" required />
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" required />
-            </div>
-            <input type="submit" value="Sign Up">
-        </form>
-
-        <div class="links">
-            Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+        <input type="submit" value="Register">
+    </form>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}

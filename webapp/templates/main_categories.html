@@ -1,54 +1,201 @@
 
 {% extends "layout.html" %}
 {% block content %}
-<style>
-    .product-image {
-        max-width: 100%;
-        max-height: 100%;
-        width: auto;
-        height: auto;
-        transition: transform 0.3s ease; /* Add smooth transition for scaling */
-        border-radius: 15px;
-    }
 
-    .product-tile {
-        height: 400px;
-        padding: 10px; /* Add padding for spacing between tiles */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        cursor: pointer;
-    }
+<section class="py-5">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-gradient mb-3">{{ category_name }}</h1>
+            <p class="lead text-muted">Discover our premium collection in {{ category_name }}</p>
+            <div class="divider mx-auto"></div>
+        </div>
 
-    .product-tile:hover .product-image {
-        transform: scale(1.1); /* Scale up the image on hover */
-    }
-
-    .product-name {
-        margin-top: 1px; /* Add spacing between the image and product name */
-        font-size: 20px; /* Set the font size to your desired value, e.g., 18px */
-    }
-
-
-</style>
-
-<div class="row">
-    <div class="col-md-12">
-        <h1>{{ category_name }}</h1>
-        <div class="row">
-            {% for product in products %}
-                <div class="col-md-4">
-                    <a href="{{ url_for('get_products', product_id=product[2]) }}" class="product-tile">
-                        <img src="static/{{ product[1] }}" alt="{{ product[0] }}" class="product-image">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('home') }}" class="text-decoration-none">
+                        <i class="fas fa-home"></i> Home
                     </a>
-                    <div class="product-name">{{ product[0] }}</div>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('products') }}" class="text-decoration-none">Categories</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ category_name }}</li>
+            </ol>
+        </nav>
+
+        <!-- Products Grid -->
+        {% if products %}
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-lg-4 col-md-6">
+                <div class="product-card h-100">
+                    <a href="{{ url_for('get_products', product_id=product[2]) }}" class="text-decoration-none">
+                        <div class="card border-0 shadow-lg h-100 overflow-hidden">
+                            <div class="product-image-wrapper position-relative">
+                                <img src="static/{{ product[1] }}" 
+                                     alt="{{ product[0] }}" 
+                                     class="card-img-top product-image">
+                                <div class="product-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <div class="overlay-content text-center text-white">
+                                        <i class="fas fa-eye fa-2x mb-2"></i>
+                                        <p class="fw-bold">View Products</p>
+                                    </div>
+                                </div>
+                                <div class="product-badge position-absolute top-0 end-0 m-3">
+                                    <span class="badge bg-primary">New</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-4 text-center">
+                                <h5 class="card-title fw-bold mb-3 text-dark">{{ product[0] }}</h5>
+                                <p class="text-muted mb-3">Explore our {{ product[0].lower() }} collection</p>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-arrow-right me-2"></i>Browse Collection
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 </div>
+            </div>
             {% endfor %}
         </div>
-    </div>
-</div>
+        {% else %}
+        <!-- No Products -->
+        <div class="text-center py-5">
+            <div class="no-products-icon mb-4">
+                <i class="fas fa-box-open fa-5x text-muted opacity-50"></i>
+            </div>
+            <h3 class="fw-bold mb-3">No products in this category</h3>
+            <p class="text-muted mb-4">This category is currently empty. Check back soon for new products!</p>
+            <a href="{{ url_for('products') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Browse Other Categories
+            </a>
+        </div>
+        {% endif %}
 
+        <!-- Category Features -->
+        <div class="row mt-5 pt-5 border-top">
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shipping-fast fa-3x text-primary"></i>
+                </div>
+                <h5 class="fw-bold">Fast Delivery</h5>
+                <p class="text-muted">Quick and reliable shipping for all {{ category_name.lower() }} items</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shield-alt fa-3x text-success"></i>
+                </div>
+                <h5 class="fw-bold">Quality Guarantee</h5>
+                <p class="text-muted">All products undergo strict quality control</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-headset fa-3x text-warning"></i>
+                </div>
+                <h5 class="fw-bold">24/7 Support</h5>
+                <p class="text-muted">Expert customer service whenever you need help</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.product-card {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+}
+
+.product-image-wrapper {
+    height: 300px;
+    overflow: hidden;
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    position: relative;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.product-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.1);
+}
+
+.overlay-content {
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .overlay-content {
+    transform: translateY(0);
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.feature-icon {
+    transition: transform 0.3s ease;
+}
+
+.feature-icon:hover {
+    transform: scale(1.1);
+}
+
+.no-products-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.product-badge {
+    z-index: 2;
+}
+
+.breadcrumb {
+    background: rgba(248, 249, 250, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+}
+
+.breadcrumb-item a:hover {
+    color: #007bff;
+}
+</style>
 
 {% endblock content %}

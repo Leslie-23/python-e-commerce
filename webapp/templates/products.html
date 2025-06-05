@@ -1,104 +1,176 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<style>
-    
-    .tile {
-        background-color: rgba(206, 203, 148, 0.3);
-        padding: 15px;
-        margin: 10px;
-        text-align: center;
-        transition: box-shadow 0.3s ease-in-out;
-        min-height: 400px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        text-decoration: none;
-        color: inherit;
-        border: 1px solid rgba(206, 203, 148, 0.6);
-        border-radius: 15px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-
-    .tile:hover {
-        background-color: rgba(228, 226, 204, 0.8);
-        border: 1px solid rgba(232, 232, 195, 0.6);
-        border-radius: 15px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-
-    .tile-image {
-        max-width: 100%;
-        max-height: 80%;
-        margin: 0 auto;
-        border-radius: 15px;
-    }
-    .text-center {
-        font-size: 20px;
-    }
-    .tile:hover h2 {
-        text-decoration: none;
-        animation: bounce 0.5s;
-    }
-    @keyframes bounce {
-        0% {
-            transform: translateY(0);
-        }
-        25% {
-            transform: translateY(-10px);
-        }
-        50% {
-            transform: translateY(0);
-        }
-        75% {
-            transform: translateY(-5px);
-        }
-        100% {
-            transform: translateY(0);
-        }
-    }
-</style>
-<div class="container">
-    <h1 class="text-center mt-5">Products</h1>
-
-    <div class="row justify-content-center mt-4">
-        <div class="col-md-6 col-sm-6">
-            <a href="{{ url_for('get_electronics') }}" class="tile" onmouseover="glowTile(this);" onmouseout="unglowTile(this);">
-                <img src="/static/category-images/electronics.png" alt="Electronics" class="tile-image">
-                <h2 class="text-center">Electronics</h2> <!-- Added heading for Electronics category -->
-            </a>
+<section class="py-5">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-gradient mb-3">Shop by Category</h1>
+            <p class="lead text-muted">Discover our wide range of premium products</p>
+            <div class="divider mx-auto"></div>
         </div>
-        <div class="col-md-6 col-sm-6">
-            <a href="{{ url_for('get_toys') }}" class="tile" onmouseover="glowTile(this);" onmouseout="unglowTile(this);">
-                <img src="/static/category-images/toys.png" alt="Toys" class="tile-image">
-                <h2 class="text-center">Toys</h2> <!-- Added heading for Toys category -->
-            </a>
+
+        <!-- Categories Grid -->
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-5 col-md-6">
+                <a href="{{ url_for('get_electronics') }}" class="category-card text-decoration-none">
+                    <div class="card border-0 shadow-lg h-100 overflow-hidden category-item">
+                        <div class="card-img-wrapper position-relative">
+                            <img src="/static/category-images/electronics.png" 
+                                 alt="Electronics" 
+                                 class="card-img-top category-image">
+                            <div class="card-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                                <div class="text-center text-white">
+                                    <i class="fas fa-laptop fa-3x mb-3"></i>
+                                    <h3 class="h4 fw-bold">Electronics</h3>
+                                    <p class="mb-0">Latest tech gadgets & devices</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <h3 class="card-title h4 fw-bold mb-2">Electronics</h3>
+                            <p class="card-text text-muted mb-3">Discover cutting-edge technology and innovative gadgets</p>
+                            <div class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-right me-2"></i>Explore Collection
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-lg-5 col-md-6">
+                <a href="{{ url_for('get_toys') }}" class="category-card text-decoration-none">
+                    <div class="card border-0 shadow-lg h-100 overflow-hidden category-item">
+                        <div class="card-img-wrapper position-relative">
+                            <img src="/static/category-images/toys.png" 
+                                 alt="Toys" 
+                                 class="card-img-top category-image">
+                            <div class="card-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                                <div class="text-center text-white">
+                                    <i class="fas fa-gamepad fa-3x mb-3"></i>
+                                    <h3 class="h4 fw-bold">Toys & Games</h3>
+                                    <p class="mb-0">Fun for all ages</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <h3 class="card-title h4 fw-bold mb-2">Toys & Games</h3>
+                            <p class="card-text text-muted mb-3">Quality toys and games for endless entertainment</p>
+                            <div class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-right me-2"></i>Explore Collection
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5 pt-5">
+            <div class="col-12">
+                <div class="text-center mb-4">
+                    <h2 class="h3 fw-bold">Why Shop With Us?</h2>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shipping-fast fa-2x text-primary"></i>
+                </div>
+                <h4 class="fw-bold">Fast Shipping</h4>
+                <p class="text-muted">Quick delivery to your doorstep</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                </div>
+                <h4 class="fw-bold">Secure Shopping</h4>
+                <p class="text-muted">Safe and secure transactions</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-headset fa-2x text-primary"></i>
+                </div>
+                <h4 class="fw-bold">24/7 Support</h4>
+                <p class="text-muted">Always here to help you</p>
+            </div>
         </div>
     </div>
-</div>
+</section>
 
+<style>
+.category-card {
+    display: block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-    <script>
-        function searchOnEnter(event) {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                document.forms[0].submit();
-            }
-        }
+.category-card:hover {
+    transform: translateY(-10px);
+    text-decoration: none !important;
+}
 
-        function glowTile(tile) {
-            tile.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
-        }
+.category-item {
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
 
-        function unglowTile(tile) {
-            tile.style.boxShadow = 'none';
-        }
-    </script>
+.category-item:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+}
 
-    
-</div>
+.card-img-wrapper {
+    height: 300px;
+    overflow: hidden;
+}
+
+.category-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-image {
+    transform: scale(1.05);
+}
+
+.card-overlay {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.8), rgba(0, 86, 179, 0.8));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-card:hover .card-overlay {
+    opacity: 1;
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.category-card:hover .card-title {
+    animation: bounce 0.6s ease-in-out;
+}
+</style>
+{% endblock %}
 {% endblock %}

@@ -3,31 +3,258 @@
 
 {% block content %}
 
-<body>
-    <style type="text/css">
-        .cont {
-            margin-top: 20px;
-            max-width: 80%;
-            text-align: center;
-            padding: 60px 60px;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            background: rgba(249, 245, 216,0.8);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);  
-          }
-        .cont:hover {
-        box-shadow: 0 0 10px #7a7a69, 0 0 20px #7a7a69, 0 0 30px #7a7a69;
-    }
-    </style>
-    
-    <iframe class ="cont" src="http://127.0.0.1:5007/dash" width="1000px" height="800px" ></iframe>
-    <iframe class ="cont" src="http://127.0.0.1:5007/dash2" width="1000px" height="1000px" ></iframe>
-    <iframe class ="cont" src="http://127.0.0.1:5007/dash3" width="1000px" height="800px" ></iframe>
-    <iframe class ="cont" src="http://127.0.0.1:5007/dash4" width="1000px" height="800px" ></iframe>
+<section class="py-5">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-gradient mb-3">
+                <i class="fas fa-chart-line me-3"></i>Analytics Dashboard
+            </h1>
+            <p class="lead text-muted">Real-time insights and business intelligence</p>
+            <div class="divider mx-auto"></div>
+        </div>
 
-</body>
+        <!-- Dashboard Grid -->
+        <div class="row g-4">
+            <!-- Sales Overview -->
+            <div class="col-xl-6">
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-chart-bar text-primary me-2"></i>Sales Overview
+                        </h5>
+                    </div>
+                    <div class="iframe-container">
+                        <iframe src="http://127.0.0.1:5007/dash" 
+                                class="analytics-iframe"
+                                title="Sales Dashboard"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Performance -->
+            <div class="col-xl-6">
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-box text-success me-2"></i>Product Performance
+                        </h5>
+                    </div>
+                    <div class="iframe-container">
+                        <iframe src="http://127.0.0.1:5007/dash2" 
+                                class="analytics-iframe tall"
+                                title="Product Analytics"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Analytics -->
+            <div class="col-xl-6">
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-users text-warning me-2"></i>Customer Analytics
+                        </h5>
+                    </div>
+                    <div class="iframe-container">
+                        <iframe src="http://127.0.0.1:5007/dash3" 
+                                class="analytics-iframe"
+                                title="Customer Dashboard"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Trends -->
+            <div class="col-xl-6">
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-chart-pie text-info me-2"></i>Revenue Trends
+                        </h5>
+                    </div>
+                    <div class="iframe-container">
+                        <iframe src="http://127.0.0.1:5007/dash4" 
+                                class="analytics-iframe"
+                                title="Revenue Analytics"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-md-3 text-center mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-chart-line fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary">Real-time</h3>
+                    <p class="text-muted">Live data updates</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-filter fa-3x text-success"></i>
+                    </div>
+                    <h3 class="fw-bold text-success">Interactive</h3>
+                    <p class="text-muted">Filter and drill-down</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-mobile-alt fa-3x text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold text-warning">Responsive</h3>
+                    <p class="text-muted">Works on all devices</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-info"></i>
+                    </div>
+                    <h3 class="fw-bold text-info">Secure</h3>
+                    <p class="text-muted">Protected data access</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.analytics-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.analytics-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    border-bottom: 1px solid #dee2e6;
+    padding: 1.25rem 1.5rem;
+}
+
+.iframe-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    background: #f8f9fa;
+}
+
+.analytics-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0 0 1rem 1rem;
+}
+
+.analytics-iframe.tall {
+    height: 600px;
+}
+
+.stat-card {
+    padding: 2rem 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .iframe-container {
+        height: 400px;
+    }
+    
+    .analytics-iframe.tall {
+        height: 500px;
+    }
+    
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .iframe-container {
+        height: 350px;
+    }
+    
+    .analytics-iframe.tall {
+        height: 450px;
+    }
+}
+
+/* Loading animation for iframes */
+.iframe-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.analytics-iframe {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.analytics-iframe:loaded {
+    opacity: 1;
+}
+</style>
+
+<script>
+// Hide loading animation when iframes load
+document.addEventListener('DOMContentLoaded', function() {
+    const iframes = document.querySelectorAll('.analytics-iframe');
+    
+    iframes.forEach(function(iframe) {
+        iframe.addEventListener('load', function() {
+            this.style.opacity = '1';
+            // Hide loading spinner
+            const container = this.parentElement;
+            container.style.setProperty('--loading', 'none');
+        });
+    });
+});
+</script>
+
 {% endblock %}
