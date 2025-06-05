@@ -1,0 +1,347 @@
+{% extends "admin/layout.html" %}
+{% block title %}User Management - PAL Store{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Users</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0 text-gray-800">User Management</h1>
+            <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userStatsModal">
+                    <i class="fas fa-chart-bar me-2"></i>User Statistics
+                </button>
+            </div>
+        </div>
+        <p class="text-muted">Manage user accounts and permissions</p>
+    </div>
+</div>
+
+<!-- User Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Users</div>
+                    <div class="stats-number">{{ users|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-users stats-icon text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Admin Users</div>
+                    <div class="stats-number">{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-user-shield stats-icon text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Regular Users</div>
+                    <div class="stats-number">{{ users|selectattr('role', 'equalto', 'user')|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-user stats-icon text-info"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Active Today</div>
+                    <div class="stats-number">{{ users|selectattr('last_login', 'defined')|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-user-check stats-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">All Users</h6>
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control" id="searchUsers" placeholder="Search users..." style="width: 250px;">
+                <select class="form-select" id="roleFilter" style="width: 150px;">
+                    <option value="">All Roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Registration Date</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-3">
+                                    {{ user.name[0].upper() if user.name else 'U' }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ user.name or 'Unknown' }}</div>
+                                    {% if user.phone %}
+                                    <small class="text-muted">{{ user.phone }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-crown me-1"></i>Admin
+                                </span>
+                            {% else %}
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-user me-1"></i>User
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.created_at %}
+                                {{ user.created_at.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.last_login %}
+                                <span class="text-success">
+                                    {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Never</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        onclick="viewUser({{ user.id }})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if user.id != session.userid %}
+                                <form method="POST" action="{{ url_for('toggle_user_role', user_id=user.id) }}" 
+                                      style="display: inline;" onsubmit="return confirmRoleChange()">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" 
+                                            title="Toggle Role">
+                                        {% if user.role == 'admin' %}
+                                            <i class="fas fa-user-minus"></i>
+                                        {% else %}
+                                            <i class="fas fa-user-plus"></i>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="toggleUserStatus({{ user.id }}, {{ user.is_active|lower }})" 
+                                        title="{% if user.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                    {% if user.is_active %}
+                                        <i class="fas fa-user-slash"></i>
+                                    {% else %}
+                                        <i class="fas fa-user-check"></i>
+                                    {% endif %}
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="userDetailsContent">
+                <!-- User details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Search functionality
+document.getElementById('searchUsers').addEventListener('keyup', function() {
+    filterUsers();
+});
+
+document.getElementById('roleFilter').addEventListener('change', function() {
+    filterUsers();
+});
+
+function filterUsers() {
+    const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
+    const roleFilter = document.getElementById('roleFilter').value;
+    const table = document.getElementById('usersTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const name = row.cells[1].textContent.toLowerCase();
+        const email = row.cells[2].textContent.toLowerCase();
+        const role = row.cells[3].textContent.toLowerCase();
+
+        const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
+        const matchesRole = roleFilter === '' || role.includes(roleFilter);
+
+        row.style.display = matchesSearch && matchesRole ? '' : 'none';
+    }
+}
+
+function viewUser(userId) {
+    // Implement user details view
+    fetch(`/admin/users/${userId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('userDetailsContent').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Personal Information</h6>
+                        <p><strong>Name:</strong> ${data.name || 'N/A'}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+                        <p><strong>Role:</strong> ${data.role}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Account Information</h6>
+                        <p><strong>Registration:</strong> ${new Date(data.created_at).toLocaleDateString()}</p>
+                        <p><strong>Last Login:</strong> ${data.last_login ? new Date(data.last_login).toLocaleString() : 'Never'}</p>
+                        <p><strong>Status:</strong> ${data.is_active ? 'Active' : 'Inactive'}</p>
+                        <p><strong>Total Orders:</strong> ${data.total_orders || 0}</p>
+                    </div>
+                </div>
+            `;
+            const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to load user details');
+        });
+}
+
+function confirmRoleChange() {
+    return confirm('Are you sure you want to change this user\'s role?');
+}
+
+function toggleUserStatus(userId, isActive) {
+    const action = isActive ? 'deactivate' : 'activate';
+    if (confirm(`Are you sure you want to ${action} this user?`)) {
+        fetch(`/admin/users/${userId}/toggle_status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to update user status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to update user status');
+        });
+    }
+}
+</script>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.stats-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border-left: 4px solid #4e73df;
+}
+
+.stats-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #5a5c69;
+}
+
+.stats-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3a3b45;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+</style>
+{% endblock %}

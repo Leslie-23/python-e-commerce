@@ -1,0 +1,451 @@
+{% extends "layout.html" %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-3">
+                        <img src="{{ user.avatar_url or '/static/images/default-avatar.png' }}" 
+                             alt="Profile Picture" 
+                             class="rounded-circle" 
+                             width="100" 
+                             height="100">
+                    </div>
+                    <h5 class="card-title">{{ user.name }}</h5>
+                    <p class="text-muted">{{ user.email }}</p>
+                </div>
+            </div>
+
+            <!-- Profile Navigation -->
+            <div class="card mt-3">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('user_profile') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user"></i> Profile Overview
+                    </a>
+                    <a href="{{ url_for('user_orders') }}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-shopping-bag"></i> My Orders
+                        {% if orders|length > 0 %}
+                        <span class="badge bg-primary float-end">{{ orders|length }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('user_edit_profile') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                    <a href="{{ url_for('change_password') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-lock"></i> Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Orders</h2>
+                <div class="d-flex gap-2">
+                    <!-- Order Status Filter -->
+                    <select class="form-select" id="statusFilter" style="width: auto;">
+                        <option value="">All Orders</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    
+                    <!-- Date Range Filter -->
+                    <select class="form-select" id="dateFilter" style="width: auto;">
+                        <option value="">All Time</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 3 months</option>
+                        <option value="365">Last year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Order Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-shopping-cart fa-2x text-primary mb-2"></i>
+                            <h4 class="card-title">{{ orders|length }}</h4>
+                            <p class="card-text text-muted">Total Orders</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                            <h4 class="card-title">{{ orders|selectattr('status', 'equalto', 'processing')|list|length }}</h4>
+                            <p class="card-text text-muted">Processing</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-shipping-fast fa-2x text-info mb-2"></i>
+                            <h4 class="card-title">{{ orders|selectattr('status', 'equalto', 'shipped')|list|length }}</h4>
+                            <p class="card-text text-muted">Shipped</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <h4 class="card-title">{{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}</h4>
+                            <p class="card-text text-muted">Delivered</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            <div class="card">
+                <div class="card-body">
+                    {% if orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr data-status="{{ order.status }}" data-date="{{ order.created_at.strftime('%Y-%m-%d') }}">
+                                    <td>
+                                        <strong>#{{ order.id }}</strong>
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%m/%d/%Y') }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if order.items|length > 0 %}
+                                                <img src="{{ order.items[0].product.image_url or '/static/images/no-image.png' }}" 
+                                                     alt="{{ order.items[0].product.name }}" 
+                                                     class="rounded me-2" 
+                                                     width="40" 
+                                                     height="40">
+                                                <div>
+                                                    <div class="fw-bold">{{ order.items[0].product.name }}</div>
+                                                    {% if order.items|length > 1 %}
+                                                        <small class="text-muted">+{{ order.items|length - 1 }} more item(s)</small>
+                                                    {% endif %}
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">No items</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' if order.status == 'processing' else 'info' if order.status == 'shipped' else 'danger' if order.status == 'cancelled' else 'secondary' }}">
+                                            {{ order.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong>${{ "%.2f"|format(order.total) }}</strong>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('user_order_detail', order_id=order.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            {% if order.status in ['processing', 'shipped'] %}
+                                            <button class="btn btn-sm btn-outline-info" 
+                                                    onclick="trackOrder({{ order.id }})">
+                                                <i class="fas fa-map-marker-alt"></i> Track
+                                            </button>
+                                            {% endif %}
+                                            {% if order.status == 'processing' %}
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    onclick="cancelOrder({{ order.id }})">
+                                                <i class="fas fa-times"></i> Cancel
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                        <h4>No Orders Yet</h4>
+                        <p class="text-muted">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+                        <a href="{{ url_for('products') }}" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart"></i> Start Shopping
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Tracking Modal -->
+<div class="modal fade" id="trackingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Track Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="trackingInfo">
+                    <!-- Tracking information will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this order?</p>
+                <div class="mb-3">
+                    <label for="cancelReason" class="form-label">Reason for cancellation (optional)</label>
+                    <textarea class="form-control" id="cancelReason" rows="3" placeholder="Tell us why you're canceling this order..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Order</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const ordersTable = document.getElementById('ordersTable');
+    
+    // Filter functionality
+    function filterOrders() {
+        const statusValue = statusFilter.value.toLowerCase();
+        const dateValue = parseInt(dateFilter.value);
+        const rows = ordersTable.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            let showRow = true;
+            
+            // Status filter
+            if (statusValue && row.dataset.status !== statusValue) {
+                showRow = false;
+            }
+            
+            // Date filter
+            if (dateValue) {
+                const orderDate = new Date(row.dataset.date);
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - dateValue);
+                
+                if (orderDate < cutoffDate) {
+                    showRow = false;
+                }
+            }
+            
+            row.style.display = showRow ? '' : 'none';
+        });
+    }
+    
+    statusFilter.addEventListener('change', filterOrders);
+    dateFilter.addEventListener('change', filterOrders);
+    
+    // Initialize modals
+    const trackingModal = new bootstrap.Modal(document.getElementById('trackingModal'));
+    const cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
+    
+    let currentOrderId = null;
+    
+    // Track order function
+    window.trackOrder = function(orderId) {
+        currentOrderId = orderId;
+        
+        // Load tracking information
+        fetch(`/user/api/track-order/${orderId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayTrackingInfo(data.tracking);
+                trackingModal.show();
+            } else {
+                showAlert('Error loading tracking information: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error loading tracking information', 'error');
+        });
+    };
+    
+    // Cancel order function
+    window.cancelOrder = function(orderId) {
+        currentOrderId = orderId;
+        cancelModal.show();
+    };
+    
+    // Confirm cancel order
+    document.getElementById('confirmCancel').addEventListener('click', function() {
+        const reason = document.getElementById('cancelReason').value;
+        
+        fetch(`/user/api/cancel-order/${currentOrderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Order cancelled successfully', 'success');
+                cancelModal.hide();
+                // Refresh the page to update order status
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showAlert('Error cancelling order: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error cancelling order', 'error');
+        });
+    });
+    
+    function displayTrackingInfo(tracking) {
+        const trackingInfo = document.getElementById('trackingInfo');
+        
+        if (!tracking || tracking.length === 0) {
+            trackingInfo.innerHTML = '<p class="text-muted">No tracking information available yet.</p>';
+            return;
+        }
+        
+        let html = `
+            <div class="tracking-timeline">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Tracking Number:</strong> ${tracking.tracking_number || 'N/A'}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Carrier:</strong> ${tracking.carrier || 'N/A'}
+                    </div>
+                </div>
+                <div class="timeline">
+        `;
+        
+        tracking.events.forEach((event, index) => {
+            html += `
+                <div class="timeline-item ${index === 0 ? 'active' : ''}">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">${event.status}</h6>
+                        <p class="mb-1">${event.description}</p>
+                        <small class="text-muted">${event.date} - ${event.location}</small>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div></div>';
+        trackingInfo.innerHTML = html;
+    }
+    
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+});
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: 0;
+    bottom: -20px;
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+.timeline-item:last-child:before {
+    display: none;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -27px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    border: 2px solid #fff;
+}
+
+.timeline-item.active .timeline-marker {
+    background-color: #0d6efd;
+}
+
+.timeline-content {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #dee2e6;
+}
+
+.timeline-item.active .timeline-content {
+    border-left-color: #0d6efd;
+}
+</style>
+{% endblock %}

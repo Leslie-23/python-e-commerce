@@ -1,0 +1,144 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Order Details - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2>Order #{{ order[0] if order else 'N/A' }}</h2>
+                    <a href="{{ url_for('admin_orders') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Orders
+                    </a>
+                </div>
+                
+                {% if order %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Order Items -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5>Order Items</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Variant</th>
+                                                    <th>Quantity</th>
+                                                    <th>Price</th>
+                                                    <th>Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if order_items %}
+                                                    {% for item in order_items %}
+                                                    <tr>
+                                                        <td>{{ item[1] }}</td>
+                                                        <td>{{ item[2] }}</td>
+                                                        <td>{{ item[3] }}</td>
+                                                        <td>${{ "%.2f"|format(item[4]) }}</td>
+                                                        <td>${{ "%.2f"|format(item[3] * item[4]) }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="5" class="text-center">No items found</td>
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Order Summary -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5>Order Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <strong>Order Date:</strong><br>
+                                        {{ order[1] if order[1] else 'N/A' }}
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Delivery Method:</strong><br>
+                                        {{ order[2] if order[2] else 'Standard' }}
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Payment Method:</strong><br>
+                                        {{ order[3] if order[3] else 'Cash on Delivery' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Actions -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Actions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group mb-3">
+                                        <label for="status" class="form-label">Update Status</label>
+                                        <select class="form-select" id="status" name="status">
+                                            <option value="pending">Pending</option>
+                                            <option value="processing">Processing</option>
+                                            <option value="shipped">Shipped</option>
+                                            <option value="delivered">Delivered</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="updateOrderStatus()">
+                                        Update Status
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card-body text-center">
+                    <p>Order not found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateOrderStatus() {
+    const status = document.getElementById('status').value;
+    const orderId = {{ order[0] if order else 0 }};
+    
+    fetch(`/api/orders/${orderId}/status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Order status updated successfully!');
+            location.reload();
+        } else {
+            alert('Failed to update order status.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the order status.');
+    });
+}
+</script>
+{% endblock %}

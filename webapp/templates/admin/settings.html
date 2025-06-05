@@ -1,0 +1,463 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Settings - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>System Settings</h2>
+        <button class="btn btn-success" id="saveAllSettings"><i class="fas fa-save"></i> Save All Changes</button>
+    </div>
+
+    <!-- Settings Tabs -->
+    <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                <i class="fas fa-cog"></i> General
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="store-tab" data-bs-toggle="tab" data-bs-target="#store" type="button" role="tab">
+                <i class="fas fa-store"></i> Store
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab">
+                <i class="fas fa-credit-card"></i> Payment
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">
+                <i class="fas fa-shipping-fast"></i> Shipping
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
+                <i class="fas fa-bell"></i> Notifications
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="settingsTabContent">
+        <!-- General Settings -->
+        <div class="tab-pane fade show active" id="general" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">General Settings</h5>
+                    <form id="generalSettingsForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="siteName" class="form-label">Site Name</label>
+                                    <input type="text" class="form-control" id="siteName" value="E-Commerce Store">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="siteDescription" class="form-label">Site Description</label>
+                                    <textarea class="form-control" id="siteDescription" rows="3">Your one-stop shop for everything you need</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="adminEmail" class="form-label">Admin Email</label>
+                                    <input type="email" class="form-control" id="adminEmail" value="admin@example.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="timezone" class="form-label">Timezone</label>
+                                    <select class="form-select" id="timezone">
+                                        <option value="UTC">UTC</option>
+                                        <option value="America/New_York">Eastern Time</option>
+                                        <option value="America/Chicago">Central Time</option>
+                                        <option value="America/Denver">Mountain Time</option>
+                                        <option value="America/Los_Angeles">Pacific Time</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="currency" class="form-label">Default Currency</label>
+                                    <select class="form-select" id="currency">
+                                        <option value="USD">USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                        <option value="CAD">CAD ($)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dateFormat" class="form-label">Date Format</label>
+                                    <select class="form-select" id="dateFormat">
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                                        <label class="form-check-label" for="maintenanceMode">
+                                            Maintenance Mode
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="userRegistration" checked>
+                                        <label class="form-check-label" for="userRegistration">
+                                            Allow User Registration
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Store Settings -->
+        <div class="tab-pane fade" id="store" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Store Settings</h5>
+                    <form id="storeSettingsForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="storeName" class="form-label">Store Name</label>
+                                    <input type="text" class="form-control" id="storeName" value="My E-Commerce Store">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="storeAddress" class="form-label">Store Address</label>
+                                    <textarea class="form-control" id="storeAddress" rows="3">123 Business St, City, State 12345</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="storePhone" class="form-label">Store Phone</label>
+                                    <input type="tel" class="form-control" id="storePhone" value="+1 (555) 123-4567">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="storeEmail" class="form-label">Store Email</label>
+                                    <input type="email" class="form-control" id="storeEmail" value="store@example.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="taxRate" class="form-label">Default Tax Rate (%)</label>
+                                    <input type="number" class="form-control" id="taxRate" value="8.25" step="0.01" min="0" max="100">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="lowStockThreshold" class="form-label">Low Stock Threshold</label>
+                                    <input type="number" class="form-control" id="lowStockThreshold" value="10" min="0">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="showOutOfStock" checked>
+                                        <label class="form-check-label" for="showOutOfStock">
+                                            Show Out of Stock Products
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="requireLogin" checked>
+                                        <label class="form-check-label" for="requireLogin">
+                                            Require Login to Purchase
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Settings -->
+        <div class="tab-pane fade" id="payment" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Payment Settings</h5>
+                    <form id="paymentSettingsForm">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6>Accepted Payment Methods</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="creditCard" checked>
+                                            <label class="form-check-label" for="creditCard">
+                                                <i class="fas fa-credit-card text-primary"></i> Credit Cards
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="paypal" checked>
+                                            <label class="form-check-label" for="paypal">
+                                                <i class="fab fa-paypal text-info"></i> PayPal
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stripe">
+                                            <label class="form-check-label" for="stripe">
+                                                <i class="fab fa-stripe text-purple"></i> Stripe
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="cashOnDelivery">
+                                            <label class="form-check-label" for="cashOnDelivery">
+                                                <i class="fas fa-money-bill text-success"></i> Cash on Delivery
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h6>Payment Gateway Configuration</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="stripePublicKey" class="form-label">Stripe Public Key</label>
+                                            <input type="text" class="form-control" id="stripePublicKey" placeholder="pk_test_...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="stripeSecretKey" class="form-label">Stripe Secret Key</label>
+                                            <input type="password" class="form-control" id="stripeSecretKey" placeholder="sk_test_...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="paypalClientId" class="form-label">PayPal Client ID</label>
+                                            <input type="text" class="form-control" id="paypalClientId" placeholder="PayPal Client ID">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="paypalClientSecret" class="form-label">PayPal Client Secret</label>
+                                            <input type="password" class="form-control" id="paypalClientSecret" placeholder="PayPal Client Secret">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Settings -->
+        <div class="tab-pane fade" id="shipping" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Shipping Settings</h5>
+                    <form id="shippingSettingsForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="freeShippingThreshold" class="form-label">Free Shipping Threshold ($)</label>
+                                    <input type="number" class="form-control" id="freeShippingThreshold" value="50" step="0.01" min="0">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="standardShippingCost" class="form-label">Standard Shipping Cost ($)</label>
+                                    <input type="number" class="form-control" id="standardShippingCost" value="5.99" step="0.01" min="0">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="expressShippingCost" class="form-label">Express Shipping Cost ($)</label>
+                                    <input type="number" class="form-control" id="expressShippingCost" value="12.99" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="standardShippingDays" class="form-label">Standard Shipping Days</label>
+                                    <input type="number" class="form-control" id="standardShippingDays" value="5" min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="expressShippingDays" class="form-label">Express Shipping Days</label>
+                                    <input type="number" class="form-control" id="expressShippingDays" value="2" min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="internationalShipping">
+                                        <label class="form-check-label" for="internationalShipping">
+                                            Enable International Shipping
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="tab-pane fade" id="notifications" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Notification Settings</h5>
+                    <form id="notificationSettingsForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Email Notifications</h6>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="orderConfirmation" checked>
+                                        <label class="form-check-label" for="orderConfirmation">
+                                            Order Confirmation
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="shippingNotification" checked>
+                                        <label class="form-check-label" for="shippingNotification">
+                                            Shipping Notification
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="lowStockAlert" checked>
+                                        <label class="form-check-label" for="lowStockAlert">
+                                            Low Stock Alerts
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="newOrderAlert" checked>
+                                        <label class="form-check-label" for="newOrderAlert">
+                                            New Order Alerts
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>SMTP Configuration</h6>
+                                <div class="mb-3">
+                                    <label for="smtpHost" class="form-label">SMTP Host</label>
+                                    <input type="text" class="form-control" id="smtpHost" placeholder="smtp.gmail.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="smtpPort" class="form-label">SMTP Port</label>
+                                    <input type="number" class="form-control" id="smtpPort" value="587">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="smtpUsername" class="form-label">SMTP Username</label>
+                                    <input type="text" class="form-control" id="smtpUsername" placeholder="your-email@gmail.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="smtpPassword" class="form-label">SMTP Password</label>
+                                    <input type="password" class="form-control" id="smtpPassword" placeholder="Your app password">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Save all settings
+    document.getElementById('saveAllSettings').addEventListener('click', function() {
+        const settings = {
+            general: getFormData('generalSettingsForm'),
+            store: getFormData('storeSettingsForm'),
+            payment: getFormData('paymentSettingsForm'),
+            shipping: getFormData('shippingSettingsForm'),
+            notifications: getFormData('notificationSettingsForm')
+        };
+
+        fetch('/admin/api/save-settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(settings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Settings saved successfully!', 'success');
+            } else {
+                showAlert('Error saving settings: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error saving settings', 'error');
+        });
+    });
+
+    // Helper function to get form data
+    function getFormData(formId) {
+        const form = document.getElementById(formId);
+        const formData = new FormData(form);
+        const data = {};
+
+        // Get all form inputs
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                data[input.id] = input.checked;
+            } else {
+                data[input.id] = input.value;
+            }
+        });
+
+        return data;
+    }
+
+    // Show alert function
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Load settings on page load
+    loadSettings();
+
+    function loadSettings() {
+        fetch('/admin/api/get-settings')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                populateSettings(data.settings);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading settings:', error);
+        });
+    }
+
+    function populateSettings(settings) {
+        // Populate each form with saved settings
+        Object.keys(settings).forEach(category => {
+            const categorySettings = settings[category];
+            Object.keys(categorySettings).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = categorySettings[key];
+                    } else {
+                        element.value = categorySettings[key];
+                    }
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

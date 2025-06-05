@@ -1,0 +1,427 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Add Product - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Add New Product</h2>
+        <a href="{{ url_for('admin_products') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Products
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <form method="POST" enctype="multipart/form-data" id="addProductForm">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Product Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Product Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="sku" class="form-label">SKU</label>
+                                    <input type="text" class="form-control" id="sku" name="sku" placeholder="Auto-generated if empty">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Price ($) *</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="compare_price" class="form-label">Compare Price ($)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="compare_price" name="compare_price">
+                                    <small class="form-text text-muted">Original price for showing discounts</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="cost" class="form-label">Cost ($)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="cost" name="cost">
+                                    <small class="form-text text-muted">For profit calculations</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="category_id" class="form-label">Category *</label>
+                                    <select class="form-select" id="category_id" name="category_id" required>
+                                        <option value="">Select Category</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="brand" class="form-label">Brand</label>
+                                    <input type="text" class="form-control" id="brand" name="brand">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="weight" class="form-label">Weight (lbs)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="weight" name="weight">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="length" class="form-label">Length (in)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="length" name="length">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="width" class="form-label">Width (in)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="width" name="width">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Enter tags separated by commas">
+                            <small class="form-text text-muted">e.g., summer, outdoor, waterproof</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Inventory & Shipping</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="stock_quantity" class="form-label">Stock Quantity *</label>
+                                    <input type="number" min="0" class="form-control" id="stock_quantity" name="stock_quantity" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="low_stock_threshold" class="form-label">Low Stock Threshold</label>
+                                    <input type="number" min="0" class="form-control" id="low_stock_threshold" name="low_stock_threshold" value="10">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch mt-4">
+                                        <input class="form-check-input" type="checkbox" id="track_quantity" name="track_quantity" checked>
+                                        <label class="form-check-label" for="track_quantity">
+                                            Track Quantity
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="requires_shipping" name="requires_shipping" checked>
+                                    <label class="form-check-label" for="requires_shipping">
+                                        Requires Shipping
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                    <label class="form-check-label" for="is_active">
+                                        Active (Visible in store)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">SEO & Metadata</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="meta_title" class="form-label">Meta Title</label>
+                            <input type="text" class="form-control" id="meta_title" name="meta_title">
+                            <small class="form-text text-muted">Leave empty to use product name</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="meta_description" class="form-label">Meta Description</label>
+                            <textarea class="form-control" id="meta_description" name="meta_description" rows="2"></textarea>
+                            <small class="form-text text-muted">160 characters max</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="slug" class="form-label">URL Slug</label>
+                            <input type="text" class="form-control" id="slug" name="slug">
+                            <small class="form-text text-muted">Auto-generated from product name if empty</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('admin_products') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <div>
+                        <button type="button" class="btn btn-outline-primary me-2" onclick="saveDraft()">
+                            <i class="fas fa-save"></i> Save Draft
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Product Images -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Product Images</h5>
+                </div>
+                <div class="card-body">
+                    <div id="imageUploadArea" class="border border-dashed border-2 rounded p-4 text-center mb-3">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p class="mb-2">Drag & drop images here or</p>
+                        <input type="file" id="imageUpload" name="images[]" multiple accept="image/*" class="d-none">
+                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('imageUpload').click()">
+                            <i class="fas fa-plus"></i> Choose Images
+                        </button>
+                        <small class="d-block text-muted mt-2">Maximum 10 images, 5MB each</small>
+                    </div>
+
+                    <div id="imagePreview" class="row">
+                        <!-- Image previews will be added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Status -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Product Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="active">Active</option>
+                            <option value="draft">Draft</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="featured" class="form-label">Featured Product</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="featured" name="featured">
+                            <label class="form-check-label" for="featured">
+                                Show in featured products
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="availability_date" class="form-label">Available From</label>
+                        <input type="datetime-local" class="form-control" id="availability_date" name="availability_date">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate slug from product name
+    document.getElementById('name').addEventListener('input', function() {
+        if (!document.getElementById('slug').value) {
+            const slug = this.value.toLowerCase()
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            document.getElementById('slug').value = slug;
+        }
+    });
+
+    // Handle image upload
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+    const imageUploadArea = document.getElementById('imageUploadArea');
+    let uploadedImages = [];
+
+    imageUpload.addEventListener('change', handleImageUpload);
+    
+    // Drag and drop functionality
+    imageUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('border-primary');
+    });
+
+    imageUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-primary');
+    });
+
+    imageUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-primary');
+        const files = e.dataTransfer.files;
+        handleImageFiles(files);
+    });
+
+    function handleImageUpload(e) {
+        const files = e.target.files;
+        handleImageFiles(files);
+    }
+
+    function handleImageFiles(files) {
+        for (let file of files) {
+            if (file.type.startsWith('image/')) {
+                if (uploadedImages.length < 10) {
+                    uploadedImages.push(file);
+                    createImagePreview(file, uploadedImages.length - 1);
+                } else {
+                    showAlert('Maximum 10 images allowed', 'warning');
+                    break;
+                }
+            }
+        }
+    }
+
+    function createImagePreview(file, index) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'col-6 mb-3';
+            imageDiv.innerHTML = `
+                <div class="position-relative">
+                    <img src="${e.target.result}" class="img-fluid rounded" style="height: 100px; width: 100%; object-fit: cover;">
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeImage(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="form-check position-absolute bottom-0 start-0 m-1">
+                        <input class="form-check-input" type="radio" name="primary_image" value="${index}" ${index === 0 ? 'checked' : ''}>
+                        <label class="form-check-label text-white">
+                            Primary
+                        </label>
+                    </div>
+                </div>
+            `;
+            imagePreview.appendChild(imageDiv);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    window.removeImage = function(index) {
+        uploadedImages.splice(index, 1);
+        imagePreview.innerHTML = '';
+        uploadedImages.forEach((file, i) => {
+            createImagePreview(file, i);
+        });
+    };
+
+    // Form submission
+    document.getElementById('addProductForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Add uploaded images to form data
+        uploadedImages.forEach((file, index) => {
+            formData.append('images[]', file);
+        });
+
+        fetch('/admin/products/add', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Product added successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/admin/products';
+                }, 1500);
+            } else {
+                showAlert('Error adding product: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error adding product', 'error');
+        });
+    });
+
+    // Save draft function
+    window.saveDraft = function() {
+        const formData = new FormData(document.getElementById('addProductForm'));
+        formData.append('status', 'draft');
+        
+        fetch('/admin/products/add', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Draft saved successfully!', 'success');
+            } else {
+                showAlert('Error saving draft: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error saving draft', 'error');
+        });
+    };
+
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger'} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,621 @@
+{% extends "admin/layout.html" %}
+{% block title %}Inventory Management - PAL Store{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Inventory</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0 text-gray-800">Inventory Management</h1>
+            <div>
+                <button class="btn btn-warning" onclick="exportLowStock()">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Export Low Stock
+                </button>
+                <button class="btn btn-success" onclick="bulkUpdateInventory()">
+                    <i class="fas fa-edit me-2"></i>Bulk Update
+                </button>
+                <button class="btn btn-primary" onclick="generateStockReport()">
+                    <i class="fas fa-chart-bar me-2"></i>Stock Report
+                </button>
+            </div>
+        </div>
+        <p class="text-muted">Monitor and manage product inventory levels</p>
+    </div>
+</div>
+
+<!-- Inventory Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Products</div>
+                    <div class="stats-number">{{ inventory|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-boxes stats-icon text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Low Stock Items</div>
+                    <div class="stats-number">{{ low_stock_items|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-exclamation-triangle stats-icon text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Out of Stock</div>
+                    <div class="stats-number">{{ inventory|selectattr('stock_count', 'equalto', 0)|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-times-circle stats-icon text-danger"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Value</div>
+                    <div class="stats-number">${{ "%.2f"|format(inventory|sum(attribute='total_value') or 0) }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-dollar-sign stats-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts -->
+{% if low_stock_items %}
+<div class="card shadow mb-4">
+    <div class="card-header bg-warning py-3">
+        <h6 class="m-0 font-weight-bold text-dark">
+            <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alerts
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for item in low_stock_items[:6] %}
+            <div class="col-md-4 mb-3">
+                <div class="low-stock-item">
+                    <div class="d-flex align-items-center">
+                        {% if item.image_url %}
+                            <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="low-stock-image me-3">
+                        {% else %}
+                            <div class="low-stock-placeholder me-3">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">{{ item.product_name }}</div>
+                            <div class="text-muted">{{ item.variant_name or 'Default' }}</div>
+                            <span class="badge bg-danger">{{ item.stock_count }} left</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="quickUpdateStock({{ item.variant_id }}, {{ item.stock_count }})">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if low_stock_items|length > 6 %}
+        <div class="text-center">
+            <button class="btn btn-outline-warning" onclick="showAllLowStock()">
+                View All {{ low_stock_items|length }} Low Stock Items
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Inventory Filters -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Inventory Filters</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="searchInventory" placeholder="Search products...">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="stockFilter">
+                    <option value="">All Stock Levels</option>
+                    <option value="in_stock">In Stock (>10)</option>
+                    <option value="low_stock">Low Stock (1-10)</option>
+                    <option value="out_of_stock">Out of Stock (0)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    {% for category in inventory|map(attribute='category_name')|unique %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="sortBy">
+                    <option value="name">Sort by Name</option>
+                    <option value="stock">Sort by Stock</option>
+                    <option value="value">Sort by Value</option>
+                    <option value="updated">Sort by Last Updated</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control" id="stockThreshold" placeholder="Stock threshold" value="10">
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-primary w-100" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Product Inventory</h6>
+            <div>
+                <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">
+                    <i class="fas fa-download me-1"></i>Export
+                </button>
+                <button class="btn btn-sm btn-outline-success" onclick="showBulkUpdateModal()">
+                    <i class="fas fa-edit me-1"></i>Bulk Update
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th width="50">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>Product</th>
+                        <th>Variant</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Reserved</th>
+                        <th>Available</th>
+                        <th>Unit Price</th>
+                        <th>Total Value</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inventory %}
+                    <tr data-stock="{{ item.stock_count or 0 }}" data-category="{{ item.category_name or '' }}">
+                        <td>
+                            <input type="checkbox" class="inventory-checkbox" value="{{ item.variant_id }}">
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if item.image_url %}
+                                    <img src="{{ item.image_url }}" alt="{{ item.product_name }}" 
+                                         class="inventory-thumbnail me-3">
+                                {% else %}
+                                    <div class="inventory-placeholder me-3">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold">{{ item.product_name }}</div>
+                                    <small class="text-muted">ID: {{ item.product_id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="variant-info">
+                                <div>{{ item.variant_name or 'Default' }}</div>
+                                {% if item.sku %}
+                                <small class="text-muted">SKU: {{ item.sku }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ item.category_name or 'Uncategorized' }}</span>
+                        </td>
+                        <td>
+                            {% set stock = item.stock_count or 0 %}
+                            <div class="stock-display">
+                                {% if stock > 20 %}
+                                    <span class="badge bg-success stock-badge">{{ stock }}</span>
+                                {% elif stock > 5 %}
+                                    <span class="badge bg-warning stock-badge">{{ stock }}</span>
+                                {% elif stock > 0 %}
+                                    <span class="badge bg-danger stock-badge">{{ stock }}</span>
+                                {% else %}
+                                    <span class="badge bg-dark stock-badge">0</span>
+                                {% endif %}
+                                <button class="btn btn-sm btn-link p-0 ms-2" onclick="showStockUpdateModal({{ item.variant_id }}, {{ stock }}, '{{ item.product_name }}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted">{{ item.reserved_count or 0 }}</span>
+                        </td>
+                        <td>
+                            {% set available = (item.stock_count or 0) - (item.reserved_count or 0) %}
+                            <span class="fw-bold {% if available <= 0 %}text-danger{% elif available <= 5 %}text-warning{% else %}text-success{% endif %}">
+                                {{ available }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="fw-bold">${{ "%.2f"|format(item.price or 0) }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-bold">${{ "%.2f"|format((item.stock_count or 0) * (item.price or 0)) }}</div>
+                        </td>
+                        <td>
+                            {% if item.updated_at %}
+                                <div>{{ item.updated_at.strftime('%Y-%m-%d') }}</div>
+                                <small class="text-muted">{{ item.updated_at.strftime('%H:%M') }}</small>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        onclick="viewStockHistory({{ item.variant_id }})" title="Stock History">
+                                    <i class="fas fa-history"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-success" 
+                                        onclick="adjustStock({{ item.variant_id }}, 'add')" title="Add Stock">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning" 
+                                        onclick="adjustStock({{ item.variant_id }}, 'remove')" title="Remove Stock">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-info" 
+                                        onclick="setReorderPoint({{ item.variant_id }})" title="Set Reorder Point">
+                                    <i class="fas fa-bell"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Update Modal -->
+<div class="modal fade" id="stockUpdateModal" tabindex="-1" aria-labelledby="stockUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockUpdateModalLabel">Update Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="stockUpdateForm">
+                    <input type="hidden" id="variantId">
+                    <div class="mb-3">
+                        <label class="form-label">Product</label>
+                        <div id="productName" class="fw-bold"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="currentStock" class="form-label">Current Stock</label>
+                        <input type="number" class="form-control" id="currentStock" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newStock" class="form-label">New Stock Level</label>
+                        <input type="number" class="form-control" id="newStock" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateReason" class="form-label">Reason for Update</label>
+                        <select class="form-select" id="updateReason">
+                            <option value="manual_adjustment">Manual Adjustment</option>
+                            <option value="damaged_goods">Damaged Goods</option>
+                            <option value="theft_loss">Theft/Loss</option>
+                            <option value="supplier_delivery">Supplier Delivery</option>
+                            <option value="return_restock">Return Restock</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateNotes" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="updateNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveStockUpdate()">Update Stock</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function applyFilters() {
+    const searchTerm = document.getElementById('searchInventory').value.toLowerCase();
+    const stockFilter = document.getElementById('stockFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const sortBy = document.getElementById('sortBy').value;
+    const threshold = parseInt(document.getElementById('stockThreshold').value) || 10;
+    
+    const table = document.getElementById('inventoryTable');
+    const rows = Array.from(table.getElementsByTagName('tr')).slice(1);
+
+    // Filter rows
+    rows.forEach(row => {
+        const productName = row.cells[1].textContent.toLowerCase();
+        const category = row.getAttribute('data-category').toLowerCase();
+        const stock = parseInt(row.getAttribute('data-stock')) || 0;
+
+        let show = true;
+
+        if (searchTerm && !productName.includes(searchTerm)) show = false;
+        if (categoryFilter && category !== categoryFilter.toLowerCase()) show = false;
+        if (stockFilter) {
+            if (stockFilter === 'in_stock' && stock <= threshold) show = false;
+            if (stockFilter === 'low_stock' && (stock === 0 || stock > threshold)) show = false;
+            if (stockFilter === 'out_of_stock' && stock > 0) show = false;
+        }
+
+        row.style.display = show ? '' : 'none';
+    });
+
+    // Sort visible rows
+    const visibleRows = rows.filter(row => row.style.display !== 'none');
+    visibleRows.sort((a, b) => {
+        let aValue, bValue;
+        switch (sortBy) {
+            case 'name':
+                aValue = a.cells[1].textContent.trim();
+                bValue = b.cells[1].textContent.trim();
+                return aValue.localeCompare(bValue);
+            case 'stock':
+                aValue = parseInt(a.getAttribute('data-stock')) || 0;
+                bValue = parseInt(b.getAttribute('data-stock')) || 0;
+                return aValue - bValue;
+            case 'value':
+                aValue = parseFloat(a.cells[8].textContent.replace('$', '')) || 0;
+                bValue = parseFloat(b.cells[8].textContent.replace('$', '')) || 0;
+                return bValue - aValue;
+            default:
+                return 0;
+        }
+    });
+
+    // Reorder rows
+    const tbody = table.getElementsByTagName('tbody')[0];
+    visibleRows.forEach(row => tbody.appendChild(row));
+}
+
+function showStockUpdateModal(variantId, currentStock, productName) {
+    document.getElementById('variantId').value = variantId;
+    document.getElementById('currentStock').value = currentStock;
+    document.getElementById('newStock').value = currentStock;
+    document.getElementById('productName').textContent = productName;
+    
+    const modal = new bootstrap.Modal(document.getElementById('stockUpdateModal'));
+    modal.show();
+}
+
+function saveStockUpdate() {
+    const variantId = document.getElementById('variantId').value;
+    const newStock = document.getElementById('newStock').value;
+    const reason = document.getElementById('updateReason').value;
+    const notes = document.getElementById('updateNotes').value;
+
+    fetch(`/admin/inventory/${variantId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            stock_count: parseInt(newStock),
+            reason: reason,
+            notes: notes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Stock updated successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('stockUpdateModal')).hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showAlert(data.message || 'Failed to update stock', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Failed to update stock', 'error');
+    });
+}
+
+function quickUpdateStock(variantId, currentStock) {
+    const newStock = prompt(`Current stock: ${currentStock}\nEnter new stock level:`, currentStock);
+    if (newStock !== null && newStock !== '') {
+        const stockCount = parseInt(newStock);
+        if (stockCount >= 0) {
+            fetch(`/admin/inventory/${variantId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    stock_count: stockCount,
+                    reason: 'manual_adjustment'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Stock updated successfully', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert(data.message || 'Failed to update stock', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Failed to update stock', 'error');
+            });
+        }
+    }
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.inventory-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+}
+
+function exportInventory() {
+    window.location.href = '/admin/inventory/export';
+}
+
+function exportLowStock() {
+    window.location.href = '/admin/inventory/export?type=low_stock';
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Initialize filters
+document.getElementById('searchInventory').addEventListener('keyup', applyFilters);
+document.getElementById('stockFilter').addEventListener('change', applyFilters);
+document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+document.getElementById('sortBy').addEventListener('change', applyFilters);
+</script>
+
+<style>
+.stats-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border-left: 4px solid #4e73df;
+}
+
+.stats-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #5a5c69;
+}
+
+.stats-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3a3b45;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+.low-stock-item {
+    padding: 15px;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    background: #fff3cd;
+}
+
+.low-stock-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.low-stock-placeholder {
+    width: 50px;
+    height: 50px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.inventory-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.inventory-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.stock-display {
+    display: flex;
+    align-items: center;
+}
+
+.stock-badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.variant-info {
+    max-width: 150px;
+}
+</style>
+{% endblock %}

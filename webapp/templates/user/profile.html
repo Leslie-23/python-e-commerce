@@ -1,0 +1,210 @@
+{% extends "layout.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-3">
+                        <img src="{{ user.avatar_url or '/static/images/default-avatar.png' }}" 
+                             alt="Profile Picture" 
+                             class="rounded-circle" 
+                             width="100" 
+                             height="100">
+                    </div>
+                    <h5 class="card-title">{{ user.name }}</h5>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('user_edit_profile') }}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Navigation -->
+            <div class="card mt-3">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('user_profile') }}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user"></i> Profile Overview
+                    </a>
+                    <a href="{{ url_for('user_orders') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag"></i> My Orders
+                        {% if order_count > 0 %}
+                        <span class="badge bg-primary float-end">{{ order_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('user_edit_profile') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                    <a href="{{ url_for('change_password') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-lock"></i> Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="col-md-9">
+            <!-- Profile Stats -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-shopping-bag fa-2x text-primary mb-2"></i>
+                            <h4 class="card-title">{{ order_count }}</h4>
+                            <p class="card-text text-muted">Total Orders</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+                            <h4 class="card-title">${{ "%.2f"|format(total_spent) }}</h4>
+                            <p class="card-text text-muted">Total Spent</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-heart fa-2x text-danger mb-2"></i>
+                            <h4 class="card-title">{{ wishlist_count }}</h4>
+                            <p class="card-text text-muted">Wishlist Items</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Personal Information</h5>
+                    <a href="{{ url_for('user_edit_profile') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Full Name</label>
+                                <p class="mb-0">{{ user.name }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email Address</label>
+                                <p class="mb-0">{{ user.email }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Phone Number</label>
+                                <p class="mb-0">{{ user.phone or 'Not provided' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Date of Birth</label>
+                                <p class="mb-0">{{ user.date_of_birth.strftime('%B %d, %Y') if user.date_of_birth else 'Not provided' }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Member Since</label>
+                                <p class="mb-0">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Account Status</label>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Address Information</h5>
+                    <a href="{{ url_for('user_edit_profile') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if user.address %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Billing Address</h6>
+                            <address>
+                                {{ user.address }}<br>
+                                {{ user.city }}, {{ user.state }} {{ user.zip_code }}<br>
+                                {{ user.country }}
+                            </address>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Shipping Address</h6>
+                            <address>
+                                {{ user.shipping_address or user.address }}<br>
+                                {{ user.shipping_city or user.city }}, {{ user.shipping_state or user.state }} {{ user.shipping_zip or user.zip_code }}<br>
+                                {{ user.shipping_country or user.country }}
+                            </address>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No address information provided.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Orders</h5>
+                    <a href="{{ url_for('user_orders') }}" class="btn btn-sm btn-outline-primary">
+                        View All Orders
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td><strong>#{{ order.id }}</strong></td>
+                                    <td>{{ order.created_at.strftime('%m/%d/%Y') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if order.status == 'completed' else 'warning' if order.status == 'processing' else 'secondary' }}">
+                                            {{ order.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>${{ "%.2f"|format(order.total) }}</td>
+                                    <td>
+                                        <a href="{{ url_for('user_order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No orders found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

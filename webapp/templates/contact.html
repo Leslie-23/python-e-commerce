@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="bi bi-envelope"></i> Contact Us</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Get in Touch</h5>
+                            <p class="text-muted">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+                            
+                            <form method="POST" action="{{ url_for('contact') }}">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send"></i> Send Message
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Contact Information</h5>
+                            <div class="contact-info">
+                                <div class="mb-3">
+                                    <strong><i class="bi bi-geo-alt"></i> Address:</strong><br>
+                                    123 E-commerce Street<br>
+                                    Digital City, DC 12345
+                                </div>
+                                <div class="mb-3">
+                                    <strong><i class="bi bi-telephone"></i> Phone:</strong><br>
+                                    +1 (555) 123-4567
+                                </div>
+                                <div class="mb-3">
+                                    <strong><i class="bi bi-envelope"></i> Email:</strong><br>
+                                    support@ecommerce.com
+                                </div>
+                                <div class="mb-3">
+                                    <strong><i class="bi bi-clock"></i> Business Hours:</strong><br>
+                                    Monday - Friday: 9:00 AM - 6:00 PM<br>
+                                    Saturday: 10:00 AM - 4:00 PM<br>
+                                    Sunday: Closed
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>Follow Us</h6>
+                                <div class="social-links">
+                                    <a href="#" class="btn btn-outline-primary btn-sm me-2">
+                                        <i class="bi bi-facebook"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-info btn-sm me-2">
+                                        <i class="bi bi-twitter"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-danger btn-sm me-2">
+                                        <i class="bi bi-instagram"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-dark btn-sm">
+                                        <i class="bi bi-linkedin"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.contact-info {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.social-links a {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,523 @@
+{% extends "admin/layout.html" %}
+{% block title %}Product Management - PAL Store{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Products</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0 text-gray-800">Product Management</h1>
+            <div>
+                <a href="{{ url_for('admin_add_product') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Add New Product
+                </a>
+                <button class="btn btn-primary" onclick="bulkOperations()">
+                    <i class="fas fa-tasks me-2"></i>Bulk Operations
+                </button>
+            </div>
+        </div>
+        <p class="text-muted">Manage your product catalog and inventory</p>
+    </div>
+</div>
+
+<!-- Product Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Products</div>
+                    <div class="stats-number">{{ products|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-box stats-icon text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Active Products</div>
+                    <div class="stats-number">{{ products|selectattr('is_active', 'equalto', true)|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-check-circle stats-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Low Stock Items</div>
+                    <div class="stats-number">{{ products|selectattr('stock_count', 'lessthan', 10)|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-exclamation-triangle stats-icon text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Categories</div>
+                    <div class="stats-number">{{ categories|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-tags stats-icon text-info"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Product Filters</h6>
+            <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                <i class="fas fa-undo me-1"></i>Reset Filters
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="searchProducts" placeholder="Search products...">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="stockFilter">
+                    <option value="">All Stock</option>
+                    <option value="in_stock">In Stock</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="sortBy">
+                    <option value="name">Sort by Name</option>
+                    <option value="price">Sort by Price</option>
+                    <option value="stock">Sort by Stock</option>
+                    <option value="created">Sort by Date</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-primary w-100" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">All Products</h6>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" onclick="exportProducts()">
+                    <i class="fas fa-download me-1"></i>Export
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-columns me-1"></i>Columns
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><label class="dropdown-item"><input type="checkbox" checked> Image</label></li>
+                        <li><label class="dropdown-item"><input type="checkbox" checked> Name</label></li>
+                        <li><label class="dropdown-item"><input type="checkbox" checked> Category</label></li>
+                        <li><label class="dropdown-item"><input type="checkbox" checked> Price</label></li>
+                        <li><label class="dropdown-item"><input type="checkbox" checked> Stock</label></li>
+                        <li><label class="dropdown-item"><input type="checkbox" checked> Status</label></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="productsTable">
+                <thead>
+                    <tr>
+                        <th width="50">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th width="80">Image</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th width="150">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr data-product-id="{{ product.id }}">
+                        <td>
+                            <input type="checkbox" class="product-checkbox" value="{{ product.id }}">
+                        </td>
+                        <td>
+                            {% if product.image_url %}
+                                <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+                                     class="product-thumbnail" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                            {% else %}
+                                <div class="product-placeholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="product-info">
+                                <div class="fw-bold">{{ product.name }}</div>
+                                <small class="text-muted">ID: {{ product.id }}</small>
+                                {% if product.description %}
+                                <div class="product-description">{{ product.description[:50] }}...</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ product.category_name or 'Uncategorized' }}</span>
+                        </td>
+                        <td>
+                            <div class="price-info">
+                                <div class="fw-bold">${{ "%.2f"|format(product.price or 0) }}</div>
+                                {% if product.original_price and product.original_price > product.price %}
+                                <small class="text-muted text-decoration-line-through">${{ "%.2f"|format(product.original_price) }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% set stock_count = product.stock_count or 0 %}
+                            {% if stock_count > 20 %}
+                                <span class="badge bg-success">{{ stock_count }} in stock</span>
+                            {% elif stock_count > 5 %}
+                                <span class="badge bg-warning">{{ stock_count }} left</span>
+                            {% elif stock_count > 0 %}
+                                <span class="badge bg-danger">{{ stock_count }} left</span>
+                            {% else %}
+                                <span class="badge bg-dark">Out of stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.is_active %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Active
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-pause me-1"></i>Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.created_at %}
+                                {{ product.created_at.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        onclick="viewProduct({{ product.id }})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" 
+                                   class="btn btn-sm btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-success" 
+                                        onclick="duplicateProduct({{ product.id }})" title="Duplicate">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <form method="POST" action="{{ url_for('admin_delete_product', product_id=product.id) }}" 
+                                      style="display: inline;" onsubmit="return confirmDelete()">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Operations Modal -->
+<div class="modal fade" id="bulkOperationsModal" tabindex="-1" aria-labelledby="bulkOperationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkOperationsModalLabel">Bulk Operations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Operation:</label>
+                    <select class="form-select" id="bulkOperation">
+                        <option value="">Choose an operation...</option>
+                        <option value="activate">Activate Products</option>
+                        <option value="deactivate">Deactivate Products</option>
+                        <option value="delete">Delete Products</option>
+                        <option value="change_category">Change Category</option>
+                        <option value="update_price">Update Prices</option>
+                    </select>
+                </div>
+                <div id="bulkOperationOptions" style="display: none;">
+                    <!-- Dynamic options based on selected operation -->
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span id="selectedCount">0</span> products selected
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="executeBulkOperation()">Execute</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize filters
+document.getElementById('searchProducts').addEventListener('keyup', applyFilters);
+document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+document.getElementById('stockFilter').addEventListener('change', applyFilters);
+document.getElementById('sortBy').addEventListener('change', applyFilters);
+
+function applyFilters() {
+    const searchTerm = document.getElementById('searchProducts').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const stockFilter = document.getElementById('stockFilter').value;
+    const sortBy = document.getElementById('sortBy').value;
+    
+    const table = document.getElementById('productsTable');
+    const rows = Array.from(table.getElementsByTagName('tr')).slice(1); // Skip header
+
+    // Filter rows
+    rows.forEach(row => {
+        const productName = row.cells[2].textContent.toLowerCase();
+        const category = row.cells[3].textContent.toLowerCase();
+        const status = row.cells[6].textContent.toLowerCase();
+        const stock = row.cells[5].textContent.toLowerCase();
+
+        let show = true;
+
+        if (searchTerm && !productName.includes(searchTerm)) show = false;
+        if (categoryFilter && !category.includes(categoryFilter)) show = false;
+        if (statusFilter && !status.includes(statusFilter)) show = false;
+        if (stockFilter) {
+            if (stockFilter === 'in_stock' && stock.includes('out of stock')) show = false;
+            if (stockFilter === 'low_stock' && !stock.includes('left')) show = false;
+            if (stockFilter === 'out_of_stock' && !stock.includes('out of stock')) show = false;
+        }
+
+        row.style.display = show ? '' : 'none';
+    });
+
+    // Sort visible rows
+    const visibleRows = rows.filter(row => row.style.display !== 'none');
+    visibleRows.sort((a, b) => {
+        let aValue, bValue;
+        switch (sortBy) {
+            case 'name':
+                aValue = a.cells[2].textContent.trim();
+                bValue = b.cells[2].textContent.trim();
+                return aValue.localeCompare(bValue);
+            case 'price':
+                aValue = parseFloat(a.cells[4].textContent.replace('$', '')) || 0;
+                bValue = parseFloat(b.cells[4].textContent.replace('$', '')) || 0;
+                return aValue - bValue;
+            case 'stock':
+                aValue = parseInt(a.cells[5].textContent.match(/\d+/)?.[0] || '0');
+                bValue = parseInt(b.cells[5].textContent.match(/\d+/)?.[0] || '0');
+                return bValue - aValue; // Descending for stock
+            case 'created':
+                aValue = new Date(a.cells[7].textContent);
+                bValue = new Date(b.cells[7].textContent);
+                return bValue - aValue; // Newest first
+            default:
+                return 0;
+        }
+    });
+
+    // Reorder rows in table
+    const tbody = table.getElementsByTagName('tbody')[0];
+    visibleRows.forEach(row => tbody.appendChild(row));
+}
+
+function resetFilters() {
+    document.getElementById('searchProducts').value = '';
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('stockFilter').value = '';
+    document.getElementById('sortBy').value = 'name';
+    applyFilters();
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const selected = document.querySelectorAll('.product-checkbox:checked').length;
+    const countElement = document.getElementById('selectedCount');
+    if (countElement) {
+        countElement.textContent = selected;
+    }
+}
+
+// Add event listeners to checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+});
+
+function bulkOperations() {
+    const selected = document.querySelectorAll('.product-checkbox:checked');
+    if (selected.length === 0) {
+        alert('Please select at least one product');
+        return;
+    }
+    updateSelectedCount();
+    const modal = new bootstrap.Modal(document.getElementById('bulkOperationsModal'));
+    modal.show();
+}
+
+function viewProduct(productId) {
+    window.open(`/product/${productId}/`, '_blank');
+}
+
+function duplicateProduct(productId) {
+    if (confirm('Are you sure you want to duplicate this product?')) {
+        fetch(`/admin/products/${productId}/duplicate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to duplicate product');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to duplicate product');
+        });
+    }
+}
+
+function confirmDelete() {
+    return confirm('Are you sure you want to delete this product? This action cannot be undone.');
+}
+
+function exportProducts() {
+    window.location.href = '/admin/products/export';
+}
+</script>
+
+<style>
+.stats-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border-left: 4px solid #4e73df;
+}
+
+.stats-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #5a5c69;
+}
+
+.stats-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3a3b45;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+.product-thumbnail {
+    border: 1px solid #dee2e6;
+}
+
+.product-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.product-info {
+    max-width: 250px;
+}
+
+.product-description {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.price-info {
+    min-width: 80px;
+}
+</style>
+{% endblock %}

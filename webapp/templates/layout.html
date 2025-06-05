@@ -39,15 +39,73 @@
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            </button>            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a href="{{ url_for('home') }}" class="nav-link fw-semibold">Home</a></li>
                     <li class="nav-item"><a href="{{ url_for('products') }}" class="nav-link fw-semibold">Products</a></li>
-                    {# <li class="nav-item"><a href="{{ url_for('about') }}" class="nav-link">About</a></li> #}
                     <li class="nav-item"><a href="{{ url_for('contact') }}" class="nav-link fw-semibold">Contact</a></li>
-                    <li class="nav-item"><a href="{{ url_for('login') }}" class="nav-link btn btn-outline-success me-2 fw-semibold">Login</a></li>
-                    <li class="nav-item"><a href="{{ url_for('signup') }}" class="nav-link btn btn-success text-white fw-semibold">Register</a></li>
+                </ul>
+                
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <!-- Cart Icon -->
+                    <li class="nav-item me-3">
+                        <a href="{{ url_for('cart') }}" class="nav-link position-relative">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">
+                                {{ session.get('cart', {})|length if session.get('cart') else 0 }}
+                            </span>
+                        </a>
+                    </li>
+
+                    {% if session.user_id %}
+                        <!-- Admin Access (if user is admin) -->
+                        {% if session.user_role == 'admin' %}
+                        <li class="nav-item">
+                            <a href="{{ url_for('admin_dashboard') }}" class="nav-link text-primary fw-semibold">
+                                <i class="fas fa-tachometer-alt me-1"></i>Admin Panel
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <!-- User Profile Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="{{ session.user_avatar or '/static/images/default-avatar.png' }}" 
+                                     alt="Profile" 
+                                     class="rounded-circle me-2" 
+                                     width="30" 
+                                     height="30">
+                                <span class="fw-semibold">{{ session.user_name or 'User' }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('user_profile') }}">
+                                    <i class="fas fa-user me-2"></i>My Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('user_orders') }}">
+                                    <i class="fas fa-shopping-bag me-2"></i>My Orders
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('user_edit_profile') }}">
+                                    <i class="fas fa-edit me-2"></i>Edit Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('change_password') }}">
+                                    <i class="fas fa-lock me-2"></i>Change Password
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <!-- Login/Register for non-authenticated users -->
+                        <li class="nav-item">
+                            <a href="{{ url_for('login') }}" class="nav-link btn btn-outline-success me-2 fw-semibold">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('signup') }}" class="nav-link btn btn-success text-white fw-semibold">Register</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>    </nav>

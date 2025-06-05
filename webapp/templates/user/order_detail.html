@@ -1,0 +1,488 @@
+{% extends "layout.html" %}
+
+{% block title %}Order Details - #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Back Navigation -->
+        <div class="col-12 mb-3">
+            <a href="{{ url_for('user_orders') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Orders
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Header -->
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="mb-0">Order #{{ order.id }}</h4>
+                            <small class="text-muted">Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' if order.status == 'processing' else 'info' if order.status == 'shipped' else 'danger' if order.status == 'cancelled' else 'secondary' }} fs-6">
+                                {{ order.status.title() }}
+                            </span>
+                            <div class="mt-2">
+                                {% if order.status in ['processing', 'shipped'] %}
+                                <button class="btn btn-sm btn-outline-info me-2" onclick="trackOrder({{ order.id }})">
+                                    <i class="fas fa-map-marker-alt"></i> Track Order
+                                </button>
+                                {% endif %}
+                                {% if order.status == 'processing' %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="cancelOrder({{ order.id }})">
+                                    <i class="fas fa-times"></i> Cancel Order
+                                </button>
+                                {% endif %}
+                                {% if order.status == 'delivered' %}
+                                <button class="btn btn-sm btn-outline-primary" onclick="downloadInvoice({{ order.id }})">
+                                    <i class="fas fa-download"></i> Download Invoice
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6>Order Total</h6>
+                            <h4 class="text-primary">${{ "%.2f"|format(order.total) }}</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Payment Method</h6>
+                            <p class="mb-0">{{ order.payment_method or 'Credit Card' }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Estimated Delivery</h6>
+                            <p class="mb-0">
+                                {% if order.estimated_delivery %}
+                                    {{ order.estimated_delivery.strftime('%B %d, %Y') }}
+                                {% else %}
+                                    TBD
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Tracking Number</h6>
+                            <p class="mb-0">{{ order.tracking_number or 'Not available' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Items -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Items ({{ order.items|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in order.items %}
+                    <div class="row align-items-center py-3 {{ 'border-bottom' if not loop.last }}">
+                        <div class="col-md-2">
+                            <img src="{{ item.product.image_url or '/static/images/no-image.png' }}" 
+                                 alt="{{ item.product.name }}" 
+                                 class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="mb-1">{{ item.product.name }}</h6>
+                            <p class="text-muted mb-1">{{ item.product.description[:100] }}...</p>
+                            {% if item.product.brand %}
+                            <small class="text-muted">Brand: {{ item.product.brand }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <strong>Qty: {{ item.quantity }}</strong>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <strong>${{ "%.2f"|format(item.price) }}</strong>
+                            <br>
+                            <small class="text-muted">each</small>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <strong>${{ "%.2f"|format(item.price * item.quantity) }}</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% if order.status == 'delivered' %}
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Order Delivered</h6>
+                                <p class="mb-1">Your order has been delivered successfully</p>
+                                <small class="text-muted">{{ order.delivered_at.strftime('%B %d, %Y at %I:%M %p') if order.delivered_at else 'Date not available' }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if order.status in ['delivered', 'shipped'] %}
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Order Shipped</h6>
+                                <p class="mb-1">Your order is on its way</p>
+                                <small class="text-muted">{{ order.shipped_at.strftime('%B %d, %Y at %I:%M %p') if order.shipped_at else 'Date not available' }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if order.status not in ['cancelled'] %}
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Order Processing</h6>
+                                <p class="mb-1">We're preparing your order for shipment</p>
+                                <small class="text-muted">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Order Placed</h6>
+                                <p class="mb-1">Your order has been received and confirmed</p>
+                                <small class="text-muted">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+
+                        {% if order.status == 'cancelled' %}
+                        <div class="timeline-item cancelled">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Order Cancelled</h6>
+                                <p class="mb-1">{{ order.cancellation_reason or 'Order was cancelled' }}</p>
+                                <small class="text-muted">{{ order.cancelled_at.strftime('%B %d, %Y at %I:%M %p') if order.cancelled_at else 'Date not available' }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary & Addresses -->
+        <div class="col-md-4">
+            <!-- Order Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>${{ "%.2f"|format(order.subtotal or order.total - order.tax - order.shipping_cost) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping:</span>
+                        <span>${{ "%.2f"|format(order.shipping_cost or 0) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax:</span>
+                        <span>${{ "%.2f"|format(order.tax or 0) }}</span>
+                    </div>
+                    {% if order.discount_amount %}
+                    <div class="d-flex justify-content-between mb-2 text-success">
+                        <span>Discount:</span>
+                        <span>-${{ "%.2f"|format(order.discount_amount) }}</span>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total:</strong>
+                        <strong>${{ "%.2f"|format(order.total) }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <address class="mb-0">
+                        <strong>{{ order.shipping_name or order.user.name }}</strong><br>
+                        {{ order.shipping_address or order.user.address }}<br>
+                        {{ order.shipping_city or order.user.city }}, {{ order.shipping_state or order.user.state }} {{ order.shipping_zip or order.user.zip_code }}<br>
+                        {{ order.shipping_country or order.user.country or 'United States' }}
+                    </address>
+                </div>
+            </div>
+
+            <!-- Billing Address -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Billing Address</h5>
+                </div>
+                <div class="card-body">
+                    <address class="mb-0">
+                        <strong>{{ order.billing_name or order.user.name }}</strong><br>
+                        {{ order.billing_address or order.user.address }}<br>
+                        {{ order.billing_city or order.user.city }}, {{ order.billing_state or order.user.state }} {{ order.billing_zip or order.user.zip_code }}<br>
+                        {{ order.billing_country or order.user.country or 'United States' }}
+                    </address>
+                </div>
+            </div>
+
+            <!-- Customer Support -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Have questions about your order? We're here to help!</p>
+                    <div class="d-grid gap-2">
+                        <a href="mailto:support@example.com" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope"></i> Email Support
+                        </a>
+                        <a href="tel:+1-555-123-4567" class="btn btn-outline-success">
+                            <i class="fas fa-phone"></i> Call Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Tracking Modal -->
+<div class="modal fade" id="trackingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Track Order #{{ order.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="trackingInfo">
+                    <!-- Tracking information will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Order #{{ order.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Are you sure you want to cancel this order?</strong>
+                    <p class="mb-0 mt-2">This action cannot be undone. If you've already been charged, you will receive a full refund within 3-5 business days.</p>
+                </div>
+                <div class="mb-3">
+                    <label for="cancelReason" class="form-label">Reason for cancellation (optional)</label>
+                    <textarea class="form-control" id="cancelReason" rows="3" placeholder="Tell us why you're canceling this order..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Order</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modals
+    const trackingModal = new bootstrap.Modal(document.getElementById('trackingModal'));
+    const cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
+    
+    // Track order function
+    window.trackOrder = function(orderId) {
+        // Load tracking information
+        fetch(`/user/api/track-order/${orderId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayTrackingInfo(data.tracking);
+                trackingModal.show();
+            } else {
+                showAlert('Error loading tracking information: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error loading tracking information', 'error');
+        });
+    };
+    
+    // Cancel order function
+    window.cancelOrder = function(orderId) {
+        cancelModal.show();
+    };
+    
+    // Download invoice function
+    window.downloadInvoice = function(orderId) {
+        window.location.href = `/user/order/${orderId}/invoice`;
+    };
+    
+    // Confirm cancel order
+    document.getElementById('confirmCancel').addEventListener('click', function() {
+        const reason = document.getElementById('cancelReason').value;
+        
+        fetch(`/user/api/cancel-order/{{ order.id }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Order cancelled successfully', 'success');
+                cancelModal.hide();
+                // Refresh the page to update order status
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showAlert('Error cancelling order: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error cancelling order', 'error');
+        });
+    });
+    
+    function displayTrackingInfo(tracking) {
+        const trackingInfo = document.getElementById('trackingInfo');
+        
+        if (!tracking || tracking.length === 0) {
+            trackingInfo.innerHTML = '<p class="text-muted">No tracking information available yet.</p>';
+            return;
+        }
+        
+        let html = `
+            <div class="tracking-timeline">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Tracking Number:</strong> ${tracking.tracking_number || 'N/A'}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Carrier:</strong> ${tracking.carrier || 'N/A'}
+                    </div>
+                </div>
+                <div class="timeline">
+        `;
+        
+        tracking.events.forEach((event, index) => {
+            html += `
+                <div class="timeline-item ${index === 0 ? 'active' : ''}">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">${event.status}</h6>
+                        <p class="mb-1">${event.description}</p>
+                        <small class="text-muted">${event.date} - ${event.location}</small>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div></div>';
+        trackingInfo.innerHTML = html;
+    }
+    
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+});
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: 0;
+    bottom: -20px;
+    width: 2px;
+    background-color: #28a745;
+}
+
+.timeline-item:last-child:before {
+    display: none;
+}
+
+.timeline-item.cancelled:before {
+    background-color: #dc3545;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -27px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #28a745;
+    border: 2px solid #fff;
+}
+
+.timeline-item.cancelled .timeline-marker {
+    background-color: #dc3545;
+}
+
+.timeline-content {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #28a745;
+}
+
+.timeline-item.cancelled .timeline-content {
+    border-left-color: #dc3545;
+}
+</style>
+{% endblock %}

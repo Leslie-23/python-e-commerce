@@ -1,0 +1,483 @@
+{% extends "admin/layout.html" %}
+{% block title %}Order Management - PAL Store{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Orders</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0 text-gray-800">Order Management</h1>
+            <div>
+                <button class="btn btn-primary" onclick="exportOrders()">
+                    <i class="fas fa-download me-2"></i>Export Orders
+                </button>
+                <button class="btn btn-info" onclick="printOrders()">
+                    <i class="fas fa-print me-2"></i>Print Report
+                </button>
+            </div>
+        </div>
+        <p class="text-muted">Monitor and manage customer orders</p>
+    </div>
+</div>
+
+<!-- Order Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Orders</div>
+                    <div class="stats-number">{{ orders.total if orders.pages else 0 }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-shopping-cart stats-icon text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Pending Orders</div>
+                    <div class="stats-number">{{ orders.items|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-clock stats-icon text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Completed Orders</div>
+                    <div class="stats-number">{{ orders.items|selectattr('status', 'equalto', 'completed')|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-check-circle stats-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Revenue</div>
+                    <div class="stats-number">${{ "%.2f"|format(orders.items|sum(attribute='total_amount') or 0) }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-dollar-sign stats-icon text-info"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Filters -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Order Filters</h6>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('admin_orders') }}">
+            <div class="row">
+                <div class="col-md-2">
+                    <select class="form-select" name="status" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="processing" {% if request.args.get('status') == 'processing' %}selected{% endif %}>Processing</option>
+                        <option value="shipped" {% if request.args.get('status') == 'shipped' %}selected{% endif %}>Shipped</option>
+                        <option value="delivered" {% if request.args.get('status') == 'delivered' %}selected{% endif %}>Delivered</option>
+                        <option value="cancelled" {% if request.args.get('status') == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        <option value="refunded" {% if request.args.get('status') == 'refunded' %}selected{% endif %}>Refunded</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control" name="date_from" 
+                           value="{{ request.args.get('date_from') }}" placeholder="From Date">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control" name="date_to" 
+                           value="{{ request.args.get('date_to') }}" placeholder="To Date">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" name="min_amount" 
+                           value="{{ request.args.get('min_amount') }}" placeholder="Min Amount" step="0.01">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" name="max_amount" 
+                           value="{{ request.args.get('max_amount') }}" placeholder="Max Amount" step="0.01">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-1"></i>Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Order List</h6>
+            <div>
+                <select class="form-select d-inline-block" style="width: auto;" onchange="bulkStatusUpdate()">
+                    <option value="">Bulk Actions</option>
+                    <option value="processing">Mark as Processing</option>
+                    <option value="shipped">Mark as Shipped</option>
+                    <option value="delivered">Mark as Delivered</option>
+                    <option value="cancelled">Mark as Cancelled</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th width="50">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders.items %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="order-checkbox" value="{{ order.id }}">
+                        </td>
+                        <td>
+                            <div class="fw-bold">#{{ order.id }}</div>
+                            <small class="text-muted">{{ order.order_number or 'N/A' }}</small>
+                        </td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="fw-bold">{{ order.customer_name or 'Unknown' }}</div>
+                                <small class="text-muted">{{ order.customer_email or 'N/A' }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <div>{{ order.created_at.strftime('%Y-%m-%d') if order.created_at else 'N/A' }}</div>
+                            <small class="text-muted">{{ order.created_at.strftime('%H:%M') if order.created_at else '' }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ order.item_count or 0 }} items</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold">${{ "%.2f"|format(order.total_amount or 0) }}</div>
+                            {% if order.discount_amount %}
+                            <small class="text-success">-${{ "%.2f"|format(order.discount_amount) }} discount</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.payment_method %}
+                                <span class="badge bg-secondary">{{ order.payment_method.title() }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <select class="form-select form-select-sm status-select" 
+                                    data-order-id="{{ order.id }}" 
+                                    onchange="updateOrderStatus({{ order.id }}, this.value)">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                <option value="refunded" {% if order.status == 'refunded' %}selected{% endif %}>Refunded</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" 
+                                   class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-info" 
+                                        onclick="printOrder({{ order.id }})" title="Print">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-success" 
+                                        onclick="sendTrackingEmail({{ order.id }})" title="Send Tracking">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                                {% if order.status in ['pending', 'processing'] %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="cancelOrder({{ order.id }})" title="Cancel Order">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if orders.pages > 1 %}
+        <nav aria-label="Order pagination">
+            <ul class="pagination justify-content-center">
+                {% if orders.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_orders', page=orders.prev_num, **request.args) }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in orders.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num != orders.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin_orders', page=page_num, **request.args) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if orders.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_orders', page=orders.next_num, **request.args) }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+}
+
+function updateOrderStatus(orderId, newStatus) {
+    fetch(`/admin/orders/${orderId}/update_status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Order status updated successfully', 'success');
+        } else {
+            showAlert(data.message || 'Failed to update order status', 'error');
+            // Revert the select value
+            const select = document.querySelector(`[data-order-id="${orderId}"]`);
+            select.value = data.current_status || 'pending';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Failed to update order status', 'error');
+    });
+}
+
+function bulkStatusUpdate() {
+    const selectedOrders = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+    const newStatus = event.target.value;
+    
+    if (selectedOrders.length === 0) {
+        alert('Please select at least one order');
+        event.target.value = '';
+        return;
+    }
+    
+    if (!newStatus) return;
+    
+    if (confirm(`Are you sure you want to update ${selectedOrders.length} orders to "${newStatus}" status?`)) {
+        fetch('/admin/orders/bulk_update_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                order_ids: selectedOrders,
+                status: newStatus 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(`${data.updated_count} orders updated successfully`, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert(data.message || 'Failed to update orders', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Failed to update orders', 'error');
+        });
+    }
+    
+    event.target.value = '';
+}
+
+function printOrder(orderId) {
+    window.open(`/admin/orders/${orderId}/print`, '_blank');
+}
+
+function sendTrackingEmail(orderId) {
+    if (confirm('Send tracking information email to customer?')) {
+        fetch(`/admin/orders/${orderId}/send_tracking`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Tracking email sent successfully', 'success');
+            } else {
+                showAlert(data.message || 'Failed to send tracking email', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Failed to send tracking email', 'error');
+        });
+    }
+}
+
+function cancelOrder(orderId) {
+    const reason = prompt('Please enter cancellation reason:');
+    if (reason) {
+        fetch(`/admin/orders/${orderId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Order cancelled successfully', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert(data.message || 'Failed to cancel order', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Failed to cancel order', 'error');
+        });
+    }
+}
+
+function exportOrders() {
+    const filters = new URLSearchParams(window.location.search);
+    window.location.href = `/admin/orders/export?${filters.toString()}`;
+}
+
+function printOrders() {
+    const filters = new URLSearchParams(window.location.search);
+    window.open(`/admin/orders/print_report?${filters.toString()}`, '_blank');
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+</script>
+
+<style>
+.stats-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border-left: 4px solid #4e73df;
+}
+
+.stats-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #5a5c69;
+}
+
+.stats-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3a3b45;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+.customer-info {
+    max-width: 200px;
+}
+
+.status-select {
+    min-width: 120px;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+</style>
+{% endblock %}

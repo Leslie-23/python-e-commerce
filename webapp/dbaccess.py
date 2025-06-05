@@ -1,6 +1,6 @@
 import mysql.connector
 from .databaseConfig import get_db_config_data
-from werkzeug.security import generate_password_hash,check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 config = get_db_config_data()
 
@@ -17,7 +17,8 @@ def get_mysql_connection():
 def gen_custID():
     conn = get_mysql_connection()
     cur = conn.cursor()
-    cur.execute("SELECT user_id FROM registered_user ORDER BY user_id DESC LIMIT 1")
+    cur.execute(
+        "SELECT user_id FROM registered_user ORDER BY user_id DESC LIMIT 1")
     res = cur.fetchall()
     conn.close()
     # return the number which is 1 greater than the last entry
@@ -51,7 +52,8 @@ def gen_orderID():
 def gen_order_item_ID():
     conn = get_mysql_connection()
     cur = conn.cursor()
-    cur.execute("SELECT order_item_id FROM order_item ORDER BY order_item_id DESC LIMIT 1")
+    cur.execute(
+        "SELECT order_item_id FROM order_item ORDER BY order_item_id DESC LIMIT 1")
     res = cur.fetchall()
     conn.close()
     # return the number which is 1 greater than the last entry
@@ -68,7 +70,8 @@ def gen_order_item_ID():
 def gen_delivery_ID():
     conn = get_mysql_connection()
     cur = conn.cursor()
-    cur.execute("SELECT delivery_module_id FROM delivery_module ORDER BY order_item_id DESC LIMIT 1")
+    cur.execute(
+        "SELECT delivery_module_id FROM delivery_module ORDER BY order_item_id DESC LIMIT 1")
     res = cur.fetchall()
     conn.close()
     # return the number which is 1 greater than the last entry
@@ -115,9 +118,11 @@ def add_user(data):
     if len(result) != 0:
         return False
     customer_id = gen_custID()
-    tup = (customer_id, data["email"], generate_password_hash(data["password"], method='pbkdf2:sha256'), data["username"],)
+    tup = (customer_id, data["email"], generate_password_hash(
+        data["password"], method='pbkdf2:sha256'), data["username"],)
 
-    cur.execute("INSERT INTO registered_user (user_id,email, password, username) VALUES (%s, %s, %s, %s)", tup)
+    cur.execute(
+        "INSERT INTO registered_user (user_id,email, password, username) VALUES (%s, %s, %s, %s)", tup)
 
     conn.commit()
     conn.close()
@@ -134,12 +139,13 @@ def auth_user(data):
     password = data["password"]
 
     # check if the user is already in the database
-    cur.execute("SELECT user_id,username,password FROM registered_user WHERE username=%s", (username,))
-  
+    cur.execute(
+        "SELECT user_id,username,password FROM registered_user WHERE username=%s", (username,))
+
     result = cur.fetchall()
-    print("hello mofossssssssssssssssssssssssssss",result[0][2])
+    print("hello mofossssssssssssssssssssssssssss", result[0][2])
     conn.close()
-    if not check_password_hash(result[0][2],password):
+    if not check_password_hash(result[0][2], password):
         return False
     return result[0]
 
@@ -148,7 +154,7 @@ def search_product(search_query):
     conn = get_mysql_connection()
     cur = conn.cursor()
 
-    sql_query = "SELECT * FROM product WHERE name LIKE %s"
+    sql_query = "SELECT * FROM product WHERE title LIKE %s"
     cur.execute(sql_query, ("%" + search_query + "%",))
 
     # Fetch the matching products
@@ -158,7 +164,7 @@ def search_product(search_query):
 
 
 # we can use the below function to get all the main products related to a given category
-# ex :- when we pass electronics as the parameter to this function we are fetching all the electronics sub products from the database 
+# ex :- when we pass electronics as the parameter to this function we are fetching all the electronics sub products from the database
 def get_categories(category):
     conn = get_mysql_connection()
     cur = conn.cursor()
@@ -264,7 +270,8 @@ def update_order_items(order_items, is_signedin, user_id):
 
             # INSERT INTO order_item
             insert_query = "INSERT INTO order_item (order_item_id, order_id, variant_id, quantity, price) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(insert_query, (order_item_id, order_id, variant_id, quantity, price))
+            cursor.execute(insert_query, (order_item_id,
+                           order_id, variant_id, quantity, price))
 
             # DELETE FROM cart_item
             delete_query = "DELETE FROM cart_item WHERE user_id = %s"
@@ -293,7 +300,8 @@ def update_order_table(order_table_details):
 
         insert_query = "INSERT INTO orders (order_id, date, delivery_method, payment_method, user_id) VALUES (%s, %s, %s, %s, %s)"
 
-        cursor.execute(insert_query, (order_id, date, delivery_method, payment_method, user_id))
+        cursor.execute(insert_query, (order_id, date,
+                       delivery_method, payment_method, user_id))
 
         conn.commit()
 
@@ -362,7 +370,7 @@ def update_delivary_module(module):
     conn = get_mysql_connection()
     cur = conn.cursor()
 
-    # create a list of main cities 
+    # create a list of main cities
     main_cities = ['Colombo', 'Panadura', 'Galle', 'Kandy']
     new_id = gen_delivery_ID()
     # stock_count,destination_city,new_ID
@@ -425,18 +433,18 @@ def get_details_for_delivery_module(order_item_ids):
                 variant_info.append(result)
 
         print(variant_info)
-    
+
     except Exception as e:
         print("Error:", e)
 
     return variant_info
 
 
-
 def remove_from_cart(custID, prodID):
     conn = get_mysql_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM cart WHERE custID=%s AND prodID=%s", (custID, prodID))
+    cur.execute("DELETE FROM cart WHERE custID=%s AND prodID=%s",
+                (custID, prodID))
     conn.commit()
 
 
@@ -515,7 +523,7 @@ def getProductQuantityList(from_year, to_year):
     for i, j in result:
         product_list.append(i)
         quantity_list.append(int(j))
-   
+
     return product_list, quantity_list
 
 
@@ -581,3 +589,856 @@ def get_product_sales(product_id):
     result_list = list(monthly_values.values())
 
     return result_list
+
+# ==================== ADMIN FUNCTIONS ====================
+
+
+def get_user_role(user_id):
+    """Get user role - check if user is admin"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        # Check if user has admin role (assuming a user_roles table or is_admin column)
+        # For now, we'll check if username contains 'admin' or user_id is 1
+        cur.execute(
+            "SELECT username FROM registered_user WHERE user_id = %s", (user_id,))
+        result = cur.fetchone()
+        if result and (result[0].lower() == 'admin' or user_id == 1):
+            return 'admin'
+        return 'user'
+    except Exception as e:
+        print(f"Error getting user role: {e}")
+        return 'user'
+    finally:
+        conn.close()
+
+
+def get_admin_stats():
+    """Get overview statistics for admin dashboard"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        stats = {}
+
+        # Total users
+        cur.execute("SELECT COUNT(*) FROM registered_user")
+        stats['total_users'] = cur.fetchone()[0]
+
+        # Total products
+        cur.execute("SELECT COUNT(*) FROM product")
+        stats['total_products'] = cur.fetchone()[0]
+
+        # Total orders
+        cur.execute("SELECT COUNT(*) FROM orders")
+        stats['total_orders'] = cur.fetchone()[0]
+
+        # Total revenue
+        cur.execute("SELECT SUM(oi.quantity * oi.price) FROM order_item oi")
+        result = cur.fetchone()[0]
+        stats['total_revenue'] = result if result else 0
+
+        # Low stock items
+        cur.execute("SELECT COUNT(*) FROM inventory WHERE stock_count < 10")
+        stats['low_stock_items'] = cur.fetchone()[0]
+
+        return stats
+    except Exception as e:
+        print(f"Error getting admin stats: {e}")
+        return {}
+    finally:
+        conn.close()
+
+
+def get_recent_orders(limit=10):
+    """Get recent orders for admin dashboard"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT o.order_id, o.date, ru.username, COUNT(oi.order_item_id) as item_count,
+               SUM(oi.quantity * oi.price) as total_amount
+        FROM orders o
+        LEFT JOIN registered_user ru ON o.user_id = ru.user_id
+        LEFT JOIN order_item oi ON o.order_id = oi.order_id
+        GROUP BY o.order_id, o.date, ru.username
+        ORDER BY o.date DESC
+        LIMIT %s
+        """
+        cur.execute(query, (limit,))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting recent orders: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def get_all_users():
+    """Get all users for admin management"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT ru.user_id, ru.username, ru.email, 
+               COUNT(o.order_id) as order_count,
+               COALESCE(SUM(oi.quantity * oi.price), 0) as total_spent
+        FROM registered_user ru
+        LEFT JOIN orders o ON ru.user_id = o.user_id
+        LEFT JOIN order_item oi ON o.order_id = oi.order_id
+        GROUP BY ru.user_id, ru.username, ru.email
+        ORDER BY ru.user_id
+        """
+        cur.execute(query)
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting all users: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def toggle_user_admin_role(user_id):
+    """Toggle user admin role"""
+    # For now, this is a placeholder since we don't have a proper role system
+    # In a real system, you'd update a roles table or is_admin column
+    try:
+        return True
+    except Exception as e:
+        print(f"Error toggling user role: {e}")
+        return False
+
+
+def get_all_products_admin():
+    """Get all products for admin management"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT p.product_id, p.title, p.description, c.category_name,
+               COUNT(v.variant_id) as variant_count,
+               MIN(v.price) as min_price, MAX(v.price) as max_price
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.category_id
+        LEFT JOIN variant v ON p.product_id = v.product_id
+        GROUP BY p.product_id, p.title, p.description, c.category_name
+        ORDER BY p.product_id
+        """
+        cur.execute(query)
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting all products: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def get_all_categories():
+    """Get all categories"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT c.category_id, c.category_name, pc.category_name as parent_name
+        FROM category c
+        LEFT JOIN category pc ON c.parent_category_id = pc.category_id
+        ORDER BY c.category_id
+        """
+        cur.execute(query)
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting all categories: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def add_new_product(data):
+    """Add new product"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        # Generate new product ID
+        cur.execute("SELECT MAX(product_id) FROM product")
+        max_id = cur.fetchone()[0]
+        new_id = (max_id + 1) if max_id else 1
+
+        query = """
+        INSERT INTO product (product_id, title, description, category_id)
+        VALUES (%s, %s, %s, %s)
+        """
+        cur.execute(
+            query, (new_id, data['title'], data['description'], data['category_id']))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error adding product: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def get_product_by_id(product_id):
+    """Get product details by ID"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT p.product_id, p.title, p.description, p.category_id, c.category_name
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE p.product_id = %s
+        """
+        cur.execute(query, (product_id,))
+        return cur.fetchone()
+    except Exception as e:
+        print(f"Error getting product by ID: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def get_product_variants(product_id):
+    """Get all variants for a product"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT v.variant_id, v.name, v.price, v.custom_attrbutes, 
+               i.stock_count
+        FROM variant v
+        LEFT JOIN inventory i ON v.variant_id = i.variant_id
+        WHERE v.product_id = %s
+        """
+        cur.execute(query, (product_id,))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting product variants: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def update_product(product_id, data):
+    """Update product details"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        UPDATE product 
+        SET title = %s, description = %s, category_id = %s
+        WHERE product_id = %s
+        """
+        cur.execute(
+            query, (data['title'], data['description'], data['category_id'], product_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating product: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def delete_product(product_id):
+    """Delete product and its variants"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        # Note: In a real system, you'd want to handle this more carefully
+        # considering foreign key constraints
+        cur.execute("DELETE FROM product WHERE product_id = %s", (product_id,))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error deleting product: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def get_all_categories_with_stats():
+    """Get all categories with product count statistics"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT c.category_id, c.category_name, pc.category_name as parent_name,
+               COUNT(p.product_id) as product_count
+        FROM category c
+        LEFT JOIN category pc ON c.parent_category_id = pc.category_id
+        LEFT JOIN product p ON c.category_id = p.category_id
+        GROUP BY c.category_id, c.category_name, pc.category_name
+        ORDER BY c.category_id
+        """
+        cur.execute(query)
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting categories with stats: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def add_new_category(data):
+    """Add new category"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        # Get next category ID
+        cur.execute("SELECT MAX(category_id) FROM category")
+        max_id = cur.fetchone()[0]
+        new_id = (max_id + 1) if max_id else 1
+        
+        parent_id = data.get('parent_category_id') if data.get('parent_category_id') != '' else None
+        
+        query = """
+        INSERT INTO category (category_id, category_name, parent_category_id)
+        VALUES (%s, %s, %s)
+        """
+        cur.execute(query, (new_id, data['category_name'], parent_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error adding category: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def get_all_orders_paginated(page=1, per_page=20):
+    """Get paginated orders for admin"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        offset = (page - 1) * per_page
+        query = """
+        SELECT o.order_id, o.date, o.delivery_method, o.payment_method,
+               ru.username, COUNT(oi.order_item_id) as item_count,
+               SUM(oi.quantity * oi.price) as total_amount
+        FROM orders o
+        LEFT JOIN registered_user ru ON o.user_id = ru.user_id
+        LEFT JOIN order_item oi ON o.order_id = oi.order_id
+        GROUP BY o.order_id, o.date, o.delivery_method, o.payment_method, ru.username
+        ORDER BY o.date DESC
+        LIMIT %s OFFSET %s
+        """
+        cur.execute(query, (per_page, offset))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting paginated orders: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def get_order_details(order_id):
+    """Get detailed order information"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT o.order_id, o.date, o.delivery_method, o.payment_method,
+               ru.username, ru.email
+        FROM orders o
+        LEFT JOIN registered_user ru ON o.user_id = ru.user_id
+        WHERE o.order_id = %s
+        """
+        cur.execute(query, (order_id,))
+        return cur.fetchone()
+    except Exception as e:
+        print(f"Error getting order details: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def get_inventory_overview():
+    """Get inventory overview for admin"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT v.variant_id, p.title, v.name as variant_name, v.price,
+               i.stock_count
+        FROM variant v
+        JOIN product p ON v.product_id = p.product_id
+        LEFT JOIN inventory i ON v.variant_id = i.variant_id
+        ORDER BY p.title, v.name
+        """
+        cur.execute(query)
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting inventory overview: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def get_low_stock_items(threshold=10):
+    """Get items with low stock"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT v.variant_id, p.title, v.name as variant_name, i.stock_count
+        FROM variant v
+        JOIN product p ON v.product_id = p.product_id
+        JOIN inventory i ON v.variant_id = i.variant_id
+        WHERE i.stock_count < %s
+        ORDER BY i.stock_count ASC
+        """
+        cur.execute(query, (threshold,))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting low stock items: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def update_inventory_stock(variant_id, new_stock):
+    """Update inventory stock"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = "UPDATE inventory SET stock_count = %s WHERE variant_id = %s"
+        cur.execute(query, (new_stock, variant_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating inventory stock: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+# ==================== USER PROFILE FUNCTIONS ====================
+
+
+def get_user_profile(user_id):
+    """Get user profile data"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT user_id, username, email
+        FROM registered_user
+        WHERE user_id = %s
+        """
+        cur.execute(query, (user_id,))
+        return cur.fetchone()
+    except Exception as e:
+        print(f"Error getting user profile: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def get_user_orders(user_id):
+    """Get user's order history"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT o.order_id, o.date, o.delivery_method, o.payment_method,
+               COUNT(oi.order_item_id) as item_count,
+               SUM(oi.quantity * oi.price) as total_amount
+        FROM orders o
+        LEFT JOIN order_item oi ON o.order_id = oi.order_id
+        WHERE o.user_id = %s
+        GROUP BY o.order_id, o.date, o.delivery_method, o.payment_method
+        ORDER BY o.date DESC
+        """
+        cur.execute(query, (user_id,))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting user orders: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def update_user_profile(user_id, data):
+    """Update user profile"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        UPDATE registered_user 
+        SET username = %s, email = %s
+        WHERE user_id = %s
+        """
+        cur.execute(query, (data['username'], data['email'], user_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating user profile: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def get_user_order_detail(user_id, order_id):
+    """Get specific order detail for user"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT o.order_id, o.date, o.delivery_method, o.payment_method
+        FROM orders o
+        WHERE o.user_id = %s AND o.order_id = %s
+        """
+        cur.execute(query, (user_id, order_id))
+        return cur.fetchone()
+    except Exception as e:
+        print(f"Error getting user order detail: {e}")
+        return None
+    finally:
+        conn.close()
+
+# ==================== API FUNCTIONS ====================
+
+
+def search_products_api(query, category=''):
+    """Search products for API"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        if category:
+            sql_query = """
+            SELECT p.product_id, p.title, p.description, c.name as category_name
+            FROM product p
+            JOIN category c ON p.category_id = c.category_id
+            WHERE p.title LIKE %s AND c.name LIKE %s
+            """
+            cur.execute(sql_query, ("%" + query + "%", "%" + category + "%"))
+        else:
+            sql_query = """
+            SELECT p.product_id, p.title, p.description, c.name as category_name
+            FROM product p
+            JOIN category c ON p.category_id = c.category_id
+            WHERE p.title LIKE %s
+            """
+            cur.execute(sql_query, ("%" + query + "%",))
+        
+        results = cur.fetchall()
+        return [{'id': r[0], 'title': r[1], 'description': r[2], 'category': r[3]} for r in results]
+    except Exception as e:
+        print(f"Error in API product search: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def change_user_password(user_id, current_password, new_password):
+    """Change user password"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        # First verify current password
+        cur.execute("SELECT password FROM registered_user WHERE user_id = %s", (user_id,))
+        result = cur.fetchone()
+        
+        if not result or not check_password_hash(result[0], current_password):
+            return False
+        
+        # Update password
+        hashed_password = generate_password_hash(new_password)
+        cur.execute("UPDATE registered_user SET password = %s WHERE user_id = %s", 
+                   (hashed_password, user_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error changing password: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def toggle_user_admin_status(user_id):
+    """Toggle user admin status"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        # Get current role
+        cur.execute("SELECT role FROM registered_user WHERE user_id = %s", (user_id,))
+        result = cur.fetchone()
+        
+        if not result:
+            return False
+        
+        current_role = result[0]
+        new_role = 'admin' if current_role != 'admin' else 'user'
+        
+        cur.execute("UPDATE registered_user SET role = %s WHERE user_id = %s", 
+                   (new_role, user_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error toggling admin status: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def bulk_update_inventory(updates):
+    """Bulk update inventory stock"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        for update in updates:
+            variant_id = update.get('variant_id')
+            stock_count = update.get('stock_count')
+            cur.execute("UPDATE inventory SET stock_count = %s WHERE variant_id = %s", 
+                       (stock_count, variant_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error bulk updating inventory: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def toggle_product_featured(product_id, featured):
+    """Toggle product featured status"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE product SET featured = %s WHERE product_id = %s", 
+                   (featured, product_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error toggling product featured: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def reorder_categories(category_orders):
+    """Reorder categories"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        for order_data in category_orders:
+            category_id = order_data.get('category_id')
+            display_order = order_data.get('order')
+            cur.execute("UPDATE category SET display_order = %s WHERE category_id = %s", 
+                       (display_order, category_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error reordering categories: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def upload_user_avatar(user_id, file):
+    """Upload and save user avatar"""
+    import os
+    from werkzeug.utils import secure_filename
+    
+    try:
+        # Create uploads directory if it doesn't exist
+        upload_dir = os.path.join('webapp', 'static', 'uploads', 'avatars')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Generate secure filename
+        filename = secure_filename(file.filename)
+        if filename == '':
+            return False, None
+            
+        # Add user ID to filename to make it unique
+        name, ext = os.path.splitext(filename)
+        filename = f"user_{user_id}_{name}{ext}"
+        
+        file_path = os.path.join(upload_dir, filename)
+        file.save(file_path)
+        
+        # Update user avatar in database
+        avatar_url = f"/static/uploads/avatars/{filename}"
+        conn = get_mysql_connection()
+        cur = conn.cursor()
+        cur.execute("UPDATE registered_user SET avatar = %s WHERE user_id = %s", 
+                   (avatar_url, user_id))
+        conn.commit()
+        conn.close()
+        
+        return True, avatar_url
+    except Exception as e:
+        print(f"Error uploading avatar: {e}")
+        return False, None
+
+
+def get_cart_count(user_id):
+    """Get total cart item count for user"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT SUM(quantity) FROM cart_items WHERE user_id = %s", (user_id,))
+        result = cur.fetchone()
+        return result[0] if result and result[0] else 0
+    except Exception as e:
+        print(f"Error getting cart count: {e}")
+        return 0
+    finally:
+        conn.close()
+
+
+def get_product_by_id(product_id):
+    """Get product details by ID"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT p.product_id, p.title, p.description, p.category_id, c.name as category_name,
+               p.featured, p.created_at
+        FROM product p
+        JOIN category c ON p.category_id = c.category_id
+        WHERE p.product_id = %s
+        """
+        cur.execute(query, (product_id,))
+        return cur.fetchone()
+    except Exception as e:
+        print(f"Error getting product by ID: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def get_product_variants(product_id):
+    """Get all variants for a product"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT v.variant_id, v.name, v.price, v.variant_image, i.stock_count
+        FROM variant v
+        LEFT JOIN inventory i ON v.variant_id = i.variant_id
+        WHERE v.product_id = %s
+        """
+        cur.execute(query, (product_id,))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting product variants: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def update_order_status(order_id, new_status):
+    """Update order status"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE orders SET status = %s WHERE order_id = %s", 
+                   (new_status, order_id))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating order status: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def get_order_items(order_id):
+    """Get items for a specific order"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT oi.order_item_id, p.title, v.name, oi.quantity, v.price
+        FROM order_item oi
+        JOIN variant v ON oi.variant_id = v.variant_id
+        JOIN product p ON v.product_id = p.product_id
+        WHERE oi.order_id = %s
+        """
+        cur.execute(query, (order_id,))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error getting order items: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def add_category(data):
+    """Add new category"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        name = data.get('name')
+        description = data.get('description', '')
+        parent_category = data.get('parent_category') or None
+        is_active = 1 if data.get('is_active') else 0
+        
+        query = """
+        INSERT INTO category (name, description, parent_category_id, is_active)
+        VALUES (%s, %s, %s, %s)
+        """
+        cur.execute(query, (name, description, parent_category, is_active))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error adding category: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def delete_category(category_id):
+    """Delete category"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        # Check if category has products
+        cur.execute("SELECT COUNT(*) FROM product WHERE category_id = %s", (category_id,))
+        product_count = cur.fetchone()[0]
+        
+        if product_count > 0:
+            return False, "Cannot delete category with products"
+        
+        cur.execute("DELETE FROM category WHERE category_id = %s", (category_id,))
+        conn.commit()
+        return True, "Category deleted successfully"
+    except Exception as e:
+        print(f"Error deleting category: {e}")
+        conn.rollback()
+        return False, str(e)
+    finally:
+        conn.close()
+
+
+def search_products_by_category(category_id):
+    """Search products by category"""
+    conn = get_mysql_connection()
+    cur = conn.cursor()
+    try:
+        query = """
+        SELECT p.product_id, p.title, p.description, c.name as category_name
+        FROM product p
+        JOIN category c ON p.category_id = c.category_id
+        WHERE p.category_id = %s
+        """
+        cur.execute(query, (category_id,))
+        return cur.fetchall()
+    except Exception as e:
+        print(f"Error searching products by category: {e}")
+        return []
+    finally:
+        conn.close()

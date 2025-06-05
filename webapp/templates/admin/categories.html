@@ -1,0 +1,501 @@
+{% extends "admin/layout.html" %}
+{% block title %}Category Management - PAL Store{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Categories</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0 text-gray-800">Category Management</h1>
+            <div>
+                <a href="{{ url_for('admin_add_category') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Add New Category
+                </a>
+            </div>
+        </div>
+        <p class="text-muted">Organize your products with categories and subcategories</p>
+    </div>
+</div>
+
+<!-- Category Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Categories</div>
+                    <div class="stats-number">{{ categories|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-tags stats-icon text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Parent Categories</div>
+                    <div class="stats-number">{{ categories|selectattr('parent_id', 'none')|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-sitemap stats-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Subcategories</div>
+                    <div class="stats-number">{{ categories|selectattr('parent_id', 'defined')|list|length }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-list stats-icon text-info"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="stats-label mb-1">Total Products</div>
+                    <div class="stats-number">{{ categories|sum(attribute='product_count') or 0 }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-box stats-icon text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Tree View -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Category Hierarchy</h6>
+            <div>
+                <button class="btn btn-sm btn-outline-primary" onclick="expandAll()">
+                    <i class="fas fa-expand-arrows-alt me-1"></i>Expand All
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="collapseAll()">
+                    <i class="fas fa-compress-arrows-alt me-1"></i>Collapse All
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="categoryTree">
+            {% for category in categories %}
+                {% if not category.parent_id %}
+                <div class="category-item parent-category" data-category-id="{{ category.id }}">
+                    <div class="category-header" onclick="toggleCategory({{ category.id }})">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-chevron-right expand-icon me-2"></i>
+                            {% if category.image_url %}
+                                <img src="{{ category.image_url }}" alt="{{ category.name }}" class="category-icon me-2">
+                            {% else %}
+                                <div class="category-icon-placeholder me-2">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                            {% endif %}
+                            <div class="category-info">
+                                <div class="category-name">{{ category.name }}</div>
+                                <small class="text-muted">{{ category.product_count or 0 }} products</small>
+                            </div>
+                        </div>
+                        <div class="category-actions">
+                            <span class="badge bg-primary me-2">{{ category.product_count or 0 }} products</span>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="editCategory({{ category.id }}); event.stopPropagation();">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-success" onclick="addSubcategory({{ category.id }}); event.stopPropagation();">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteCategory({{ category.id }}); event.stopPropagation();">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Subcategories -->
+                    <div class="subcategories" id="subcategories-{{ category.id }}" style="display: none;">
+                        {% for subcategory in categories %}
+                            {% if subcategory.parent_id == category.id %}
+                            <div class="category-item subcategory" data-category-id="{{ subcategory.id }}">
+                                <div class="category-header">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-minus me-2 text-muted"></i>
+                                        {% if subcategory.image_url %}
+                                            <img src="{{ subcategory.image_url }}" alt="{{ subcategory.name }}" class="category-icon me-2">
+                                        {% else %}
+                                            <div class="category-icon-placeholder me-2">
+                                                <i class="fas fa-tag"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="category-info">
+                                            <div class="category-name">{{ subcategory.name }}</div>
+                                            <small class="text-muted">{{ subcategory.product_count or 0 }} products</small>
+                                        </div>
+                                    </div>
+                                    <div class="category-actions">
+                                        <span class="badge bg-secondary me-2">{{ subcategory.product_count or 0 }} products</span>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editCategory({{ subcategory.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteCategory({{ subcategory.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Categories Table View -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">All Categories (Table View)</h6>
+            <div>
+                <input type="text" class="form-control" id="searchCategories" placeholder="Search categories..." style="width: 250px;">
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="categoriesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Parent Category</th>
+                        <th>Product Count</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>{{ category.id }}</td>
+                        <td>
+                            {% if category.image_url %}
+                                <img src="{{ category.image_url }}" alt="{{ category.name }}" 
+                                     class="category-thumbnail" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                            {% else %}
+                                <div class="category-placeholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ category.name }}</div>
+                            {% if category.slug %}
+                            <small class="text-muted">{{ category.slug }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if category.parent_id %}
+                                {% for parent in categories %}
+                                    {% if parent.id == category.parent_id %}
+                                        <span class="badge bg-info">{{ parent.name }}</span>
+                                        {% break %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Root Category</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ category.product_count or 0 }}</span>
+                        </td>
+                        <td>
+                            {% if category.description %}
+                                {{ category.description[:50] }}{% if category.description|length > 50 %}...{% endif %}
+                            {% else %}
+                                <span class="text-muted">No description</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if category.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        onclick="viewCategoryProducts({{ category.id }})" title="View Products">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning" 
+                                        onclick="editCategory({{ category.id }})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if not category.parent_id %}
+                                <button type="button" class="btn btn-sm btn-outline-success" 
+                                        onclick="addSubcategory({{ category.id }})" title="Add Subcategory">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="deleteCategory({{ category.id }})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">Category Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="categoryModalContent">
+                <!-- Category details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Search functionality
+document.getElementById('searchCategories').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const table = document.getElementById('categoriesTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const name = row.cells[2].textContent.toLowerCase();
+        const parent = row.cells[3].textContent.toLowerCase();
+        const description = row.cells[5].textContent.toLowerCase();
+
+        const matches = name.includes(searchTerm) || 
+                       parent.includes(searchTerm) || 
+                       description.includes(searchTerm);
+
+        row.style.display = matches ? '' : 'none';
+    }
+});
+
+function toggleCategory(categoryId) {
+    const subcategories = document.getElementById(`subcategories-${categoryId}`);
+    const icon = document.querySelector(`[data-category-id="${categoryId}"] .expand-icon`);
+    
+    if (subcategories.style.display === 'none') {
+        subcategories.style.display = 'block';
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+    } else {
+        subcategories.style.display = 'none';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+    }
+}
+
+function expandAll() {
+    const subcategories = document.querySelectorAll('.subcategories');
+    const icons = document.querySelectorAll('.expand-icon');
+    
+    subcategories.forEach(sub => sub.style.display = 'block');
+    icons.forEach(icon => {
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+    });
+}
+
+function collapseAll() {
+    const subcategories = document.querySelectorAll('.subcategories');
+    const icons = document.querySelectorAll('.expand-icon');
+    
+    subcategories.forEach(sub => sub.style.display = 'none');
+    icons.forEach(icon => {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+    });
+}
+
+function editCategory(categoryId) {
+    window.location.href = `/admin/categories/${categoryId}/edit`;
+}
+
+function addSubcategory(parentId) {
+    window.location.href = `/admin/categories/add?parent=${parentId}`;
+}
+
+function viewCategoryProducts(categoryId) {
+    window.location.href = `/admin/products?category=${categoryId}`;
+}
+
+function deleteCategory(categoryId) {
+    if (confirm('Are you sure you want to delete this category? This will also affect all products in this category.')) {
+        fetch(`/admin/categories/${categoryId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to delete category');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete category');
+        });
+    }
+}
+</script>
+
+<style>
+.stats-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border-left: 4px solid #4e73df;
+}
+
+.stats-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #5a5c69;
+}
+
+.stats-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3a3b45;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+.category-item {
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #fff;
+}
+
+.category-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.category-header:hover {
+    background-color: #f8f9fa;
+}
+
+.parent-category .category-header {
+    font-weight: 600;
+}
+
+.subcategory {
+    margin-left: 30px;
+    border-left: 3px solid #4e73df;
+}
+
+.subcategory .category-header {
+    cursor: default;
+}
+
+.category-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.category-icon-placeholder {
+    width: 32px;
+    height: 32px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.category-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #3a3b45;
+}
+
+.category-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.expand-icon {
+    transition: transform 0.3s;
+    color: #858796;
+}
+
+.category-thumbnail {
+    border: 1px solid #dee2e6;
+}
+
+.category-placeholder {
+    width: 50px;
+    height: 50px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+</style>
+{% endblock %}
