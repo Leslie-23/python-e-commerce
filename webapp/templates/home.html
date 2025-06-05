@@ -1,213 +1,784 @@
 {% extends "layout.html" %}
-{% block title %}Welcome to PAL Store{% endblock %}
 {% block content %}
 
-<!-- Hero Section -->
-<section class="hero-section bg-gradient-primary text-white py-5 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; margin: 2rem 0; overflow: hidden; position: relative;">
-    <div class="container">
-        <div class="row align-items-center min-vh-50">
-            <div class="col-lg-6">
-                <div class="hero-content">
-                    <span class="badge bg-white text-primary mb-3 fs-6 fw-semibold">
-                        <i class="fas fa-star text-warning"></i> Trusted by 10,000+ customers
-                    </span>
-                    <h1 class="display-4 fw-bold mb-4">Welcome to PAL Store</h1>
-                    <p class="lead mb-4">Discover innovation meets play in our carefully curated collection of electronics and toys. Your gateway to cutting-edge technology and captivating experiences.</p>
-                    <div class="d-flex gap-3 flex-wrap">
-                        <a href="{{ url_for('products') }}" class="btn btn-light btn-lg fw-semibold">
-                            <i class="fas fa-shopping-cart me-2"></i>Shop Now
-                        </a>
-                        <a href="#features" class="btn btn-outline-light btn-lg fw-semibold">
-                            Learn More
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 text-center">
-                <div class="hero-visual position-relative">
-                    <div class="floating-elements">
-                        <div class="floating-card position-absolute bg-white rounded-3 p-3 shadow" style="top: 20%; left: 10%; width: 120px; animation: float 3s ease-in-out infinite;">
-                            <i class="fas fa-laptop text-primary fs-2"></i>
-                        </div>
-                        <div class="floating-card position-absolute bg-warning rounded-circle p-3 shadow" style="bottom: 30%; right: 15%; width: 80px; height: 80px; animation: float 3s ease-in-out infinite; animation-delay: 1s;">
-                            <i class="fas fa-gamepad text-white fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Search Section -->
-<section class="search-section mb-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="search-container bg-white rounded-pill shadow p-1">
-                    <form class="d-flex">
-                        <input type="search" class="form-control border-0 ps-4" placeholder="Search for electronics, toys, and more..." aria-label="Search">
-                        <button class="btn btn-success rounded-pill px-4 fw-semibold" type="submit">
-                            <i class="fas fa-search me-2"></i>Search
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Categories Carousel -->
-<section class="categories-section mb-5">
-    <div class="container">
-        <h2 class="text-center mb-4 fw-bold">Featured Categories</h2>
-        <div id="categoriesCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="0" class="active"></button>
-                <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="1"></button>
-            </div>
-            <div class="carousel-inner rounded-4 shadow">
-                <div class="carousel-item active">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                        <img src="/static/category-images/electronics.png" class="d-block mx-auto" style="max-height: 300px; object-fit: contain;" alt="Electronics">
-                    </div>
-                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded-3 p-3">
-                        <h5 class="fw-bold">Electronics</h5>
-                        <p>Cutting-edge technology at your fingertips</p>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                        <img src="/static/category-images/toys.png" class="d-block mx-auto" style="max-height: 300px; object-fit: contain;" alt="Toys">
-                    </div>
-                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded-3 p-3">
-                        <h5 class="fw-bold">Toys</h5>
-                        <p>Where imagination comes to life</p>
-                    </div>
-                </div>
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bg-success rounded-circle p-3"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon bg-success rounded-circle p-3"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>    </div>
-</section>
-
-<!-- Features Section -->
-<section class="features-section bg-light py-5 mb-5" id="features" style="border-radius: 24px;">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-dark mb-3">Why Choose PAL Store?</h2>
-            <p class="lead text-muted">We're committed to providing you with the best shopping experience</p>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card text-center h-100">
-                    <div class="feature-icon bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <i class="fas fa-shipping-fast fs-2"></i>
-                    </div>
-                    <h5 class="fw-bold mb-3">Fast Delivery</h5>
-                    <p class="text-muted">Get your orders delivered within 24 hours with our express shipping service.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card text-center h-100">
-                    <div class="feature-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                        <i class="fas fa-shield-alt fs-2"></i>
-                    </div>
-                    <h5 class="fw-bold mb-3">Secure Payment</h5>
-                    <p class="text-muted">Shop with confidence using our encrypted payment system and buyer protection.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card text-center h-100">
-                    <div class="feature-icon bg-info text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                        <i class="fas fa-headset fs-2"></i>
-                    </div>
-                    <h5 class="fw-bold mb-3">24/7 Support</h5>
-                    <p class="text-muted">Our customer support team is always ready to help you with any questions.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card text-center h-100">
-                    <div class="feature-icon bg-warning text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                        <i class="fas fa-undo fs-2"></i>
-                    </div>
-                    <h5 class="fw-bold mb-3">Easy Returns</h5>
-                    <p class="text-muted">Not satisfied? Return any item within 30 days for a full refund.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Newsletter Section -->
-<section class="newsletter-section text-white py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px;">
-    <div class="container text-center">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-3">Stay Updated</h2>
-                <p class="lead mb-4">Subscribe to our newsletter and be the first to know about new products and exclusive deals.</p>
-                <form class="d-flex gap-3 flex-column flex-sm-row">
-                    <input type="email" class="form-control form-control-lg rounded-pill" placeholder="Enter your email address" required>
-                    <button type="submit" class="btn btn-light btn-lg rounded-pill fw-semibold px-4">
-                        <i class="fas fa-paper-plane me-2"></i>Subscribe
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
-
 <style>
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
+  :root {
+    --primary-purple: #6366f1;
+    --primary-blue: #3b82f6;
+    --primary-green: #10b981;
+    --dark-navy: #1e293b;
+    --pure-white: #ffffff;
+    --light-gray: #f8fafc;
+    --medium-gray: #64748b;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+  }
 
-.floating-elements .floating-card {
-    animation: float 3s ease-in-out infinite;
-}
-
-.hero-section {
-    position: relative;
+  /* Modern Hero Banner */
+  .hero-banner {
+    background: var(--gradient-primary);
+    border-radius: var(--radius-xl);
+    margin: 2rem 0;
     overflow: hidden;
-}
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+  }
 
-.hero-section::before {
+  .hero-banner::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('/static/main-backdrop.jpg') center/cover;
+    background: url('/banner-bg.png') center/cover;
     opacity: 0.1;
     z-index: 1;
-}
+  }
 
-.hero-content {
+  .hero-content {
     position: relative;
     z-index: 2;
-}
+    color: var(--pure-white);
+    padding: 3rem;
+    flex: 1;
+  }
 
-@media (max-width: 768px) {
-    .hero-section {
-        text-align: center;
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+    max-width: 500px;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-cta {
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--pure-white);
+    color: var(--primary-purple);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-green);
+    color: var(--pure-white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    text-decoration: none;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--pure-white);
+    border-color: var(--pure-white);
+  }
+
+  .btn-secondary:hover {
+    background: var(--pure-white);
+    color: var(--primary-purple);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+
+  .hero-visual {
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-phone {
+    width: 200px;
+    height: 400px;
+    background: linear-gradient(145deg, #2d3748, #4a5568);
+    border-radius: 25px;
+    position: relative;
+    box-shadow: var(--shadow-xl);
+    transform: rotate(-5deg);
+  }
+
+  .hero-phone::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    background: var(--gradient-success);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .floating-card {
+    position: absolute;
+    background: var(--pure-white);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    box-shadow: var(--shadow-lg);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .card-1 {
+    top: 20%;
+    left: -10%;
+    width: 120px;
+    height: 80px;
+    background: linear-gradient(135deg, #1f2937, #374151);
+    color: var(--pure-white);
+    animation-delay: 0s;
+  }
+
+  .card-2 {
+    top: 60%;
+    right: -15%;
+    width: 100px;
+    height: 100px;
+    background: var(--gradient-secondary);
+    border-radius: 50%;
+    animation-delay: 1s;
+  }
+
+  .floating-coin {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border-radius: 50%;
+    box-shadow: var(--shadow-md);
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .coin-1 {
+    top: 10%;
+    right: 20%;
+    animation-delay: 0.5s;
+  }
+
+  .coin-2 {
+    bottom: 20%;
+    left: 10%;
+    animation-delay: 1.5s;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px);
     }
-    
-    .display-4 {
-        font-size: 2.5rem;
+
+    50% {
+      transform: translateY(-10px);
     }
-    
-    .floating-elements {
-        display: none;
+  }
+
+  /* Enhanced Search Section */
+  .search-section {
+    margin: 3rem 0;
+  }
+
+  .search-container {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    background: var(--pure-white);
+    border-radius: 50px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+  }
+
+  .search-form {
+    display: flex;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    background: transparent;
+  }
+
+  .search-btn {
+    background: var(--gradient-primary);
+    color: var(--pure-white);
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .search-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Material Design Product Cards */
+  .products-section {
+    margin: 4rem 0;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dark-navy);
+    margin-bottom: 1rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.125rem;
+    color: var(--medium-gray);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .product-card {
+    background: var(--pure-white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .product-image {
+    height: 200px;
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .product-image img {
+    transform: scale(1.1);
+  }
+
+  .product-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--gradient-secondary);
+    color: var(--pure-white);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .product-content {
+    padding: 1.5rem;
+  }
+
+  .product-category {
+    font-size: 0.875rem;
+    color: var(--primary-blue);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .product-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark-navy);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .product-description {
+    font-size: 0.875rem;
+    color: var(--medium-gray);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .product-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+  }
+
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .star {
+    color: #fbbf24;
+    font-size: 0.875rem;
+  }
+
+  .rating-text {
+    font-size: 0.75rem;
+    color: var(--medium-gray);
+    margin-left: 0.5rem;
+  }
+
+  /* Features Section */
+  .features-section {
+    background: var(--light-gray);
+    border-radius: var(--radius-xl);
+    padding: 4rem 2rem;
+    margin: 4rem 0;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .feature-card {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: var(--pure-white);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .feature-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark-navy);
+    margin-bottom: 1rem;
+  }
+
+  .feature-text {
+    color: var(--medium-gray);
+    line-height: 1.6;
+  }
+
+  /* Newsletter Section */
+  .newsletter-section {
+    background: var(--gradient-primary);
+    color: var(--pure-white);
+    border-radius: var(--radius-xl);
+    padding: 4rem 2rem;
+    text-align: center;
+    margin: 4rem 0;
+  }
+
+  .newsletter-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .newsletter-text {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+
+  .newsletter-form {
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 1rem;
+  }
+
+  .newsletter-input {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    outline: none;
+  }
+
+  .newsletter-btn {
+    background: var(--pure-white);
+    color: var(--primary-purple);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 1rem 2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter-btn:hover {
+    background: var(--primary-green);
+    color: var(--pure-white);
+    transform: translateY(-2px);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .hero-banner {
+      flex-direction: column;
+      text-align: center;
+      min-height: unset ;
     }
-}
+
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-visual {
+      margin-top: 2rem;
+    }
+
+    .hero-phone {
+      width: 150px;
+      height: 300px;
+    }
+
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .newsletter-form {
+      flex-direction: column;
+    }
+
+    .section-title {
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-content {
+      padding: 2rem 1rem;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .features-section,
+    .newsletter-section {
+      padding: 2rem 1rem;
+    }
+  }
 </style>
 
-{% endblock %}
+<!-- Modern Hero Banner -->
+<div class="container">
+  <div class="hero-banner">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-star"></i> Trusted by 10,000+ customers
+      </div>
+      <h1 class="hero-title">Online Shop<br>Delivery Service</h1>
+      <p class="hero-subtitle">
+        Experience seamless shopping with our cutting-edge platform. From electronics to toys,
+        we deliver innovation right to your doorstep.
+      </p>
+      <div class="hero-cta">
+        <a href="#products" class="btn-cta btn-primary">
+          <i class="fas fa-shopping-cart"></i> Shop Now
+        </a>
+        <a href="#features" class="btn-cta btn-secondary">
+          Learn More
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-phone"></div>
+      <div class="hero-elements">
+        <div class="floating-card card-1"></div>
+        <div class="floating-card card-2"></div>
+        <div class="floating-coin coin-1"></div>
+        <div class="floating-coin coin-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Search Section -->
+<div class="container">
+  <div class="search-section">
+    <div class="search-container">
+      <form class="search-form">
+        <input type="search" class="search-input" placeholder="Search for electronics, toys, and more..."
+          aria-label="Search">
+        <button type="submit" class="search-btn">
+          <i class="fas fa-search"></i> Search
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Products Section -->
+<div class="container">
+  <div class="products-section" id="products">
+    <div class="section-header">
+      <h2 class="section-title">Featured Products</h2>
+      <p class="section-subtitle">Discover our handpicked selection of premium electronics and toys</p>
+    </div>
+
+    <div class="products-grid">
+      <a href="/electronics" class="product-card">
+        <div class="product-image">
+          <img src="/static/products/smartphone.jpg" alt="Latest Smartphone">
+          <div class="product-badge">New</div>
+        </div>
+        <div class="product-content">
+          <div class="product-category">Electronics</div>
+          <h3 class="product-title">Latest Smartphone Pro</h3>
+          <p class="product-description">Experience cutting-edge technology with our flagship smartphone featuring
+            advanced camera system.</p>
+          <div class="product-footer">
+            <div class="product-price">$899</div>
+            <div class="product-rating">
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="rating-text">(124)</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="/accessories" class="product-card">
+        <div class="product-image">
+          <img src="/static/products/laptop.jpg" alt="Gaming Laptop">
+          <div class="product-badge">Hot</div>
+        </div>
+        <div class="product-content">
+          <div class="product-category">Electronics</div>
+          <h3 class="product-title">Gaming Laptop Ultra</h3>
+          <p class="product-description">High-performance gaming laptop with RTX graphics and lightning-fast processor
+            for ultimate gaming.</p>
+          <div class="product-footer">
+            <div class="product-price">$1,299</div>
+            <div class="product-rating">
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">☆</span>
+              <span class="rating-text">(89)</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="/toys" class="product-card">
+        <div class="product-image">
+          <img src="/static/products/robot-toy.jpg" alt="Educational Robot">
+          <div class="product-badge">Sale</div>
+        </div>
+        <div class="product-content">
+          <div class="product-category">Toys</div>
+          <h3 class="product-title">Educational Robot Kit</h3>
+          <p class="product-description">Interactive robot toy that teaches coding and STEM concepts through fun,
+            hands-on activities.</p>
+          <div class="product-footer">
+            <div class="product-price">$149</div>
+            <div class="product-rating">
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="rating-text">(67)</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="/featured" class="product-card" title="View Wireless Headphones Pro product page">
+        <div class="product-image">
+          <img src="/static/products/headphones.jpg" alt="Wireless Headphones">
+        </div>
+        <div class="product-content">
+          <div class="product-category">Electronics</div>
+          <h3 class="product-title">Wireless Headphones Pro</h3>
+          <p class="product-description">Premium noise-canceling headphones with superior sound quality and all-day
+            comfort.</p>
+          <div class="product-footer">
+            <div class="product-price">$249</div>
+            <div class="product-rating">
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">☆</span>
+              <span class="rating-text">(156)</span>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Features Section -->
+<div class="container">
+  <div class="features-section" id="features">
+    <div class="section-header">
+      <h2 class="section-title">Why Choose PAL Store?</h2>
+      <p class="section-subtitle">We're committed to providing you with the best shopping experience</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-shipping-fast"></i>
+        </div>
+        <h3 class="feature-title">Fast Delivery</h3>
+        <p class="feature-text">Get your orders delivered within 24 hours with our express shipping service.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3 class="feature-title">Secure Payment</h3>
+        <p class="feature-text">Shop with confidence using our encrypted payment system and buyer protection.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-headset"></i>
+        </div>
+        <h3 class="feature-title">24/7 Support</h3>
+        <p class="feature-text">Our customer support team is always ready to help you with any questions.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-undo"></i>
+        </div>
+        <h3 class="feature-title">Easy Returns</h3>
+        <p class="feature-text">Not satisfied? Return any item within 30 days for a full refund.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Newsletter Section -->
+<div class="container">
+  <div class="newsletter-section">
+    <h2 class="newsletter-title">Stay Updated</h2>
+    <p class="newsletter-text">Subscribe to our newsletter and be the first to know about new products and exclusive
+      deals.</p>
+    <form class="newsletter-form">
+      <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
+      <button type="submit" class="newsletter-btn">Subscribe</button>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

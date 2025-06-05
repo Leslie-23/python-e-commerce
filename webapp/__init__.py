@@ -88,16 +88,22 @@ def logout():
 
 @app.route('/products')
 def products():
-    # Your products page logic
-    #     Call the get_product_info function to fetch a product
-    product = get_product_info()  # Replace 'your_product_id' with the actual product ID you want to fetch
+    try:
+        # Try to fetch product info
+        product = get_product_info()  # Replace 'your_product_id' with the actual product ID you want to fetch
+        if product:
+            return render_template('products.html', product=product)
+        else:
+            # No product found, but not a crash
+            return render_template('products.html', error_msg='No products found.')
+    except Exception as e:
+        # Log the error for debugging
+        import traceback
+        print('Error in /products route:', e)
+        traceback.print_exc()
+        # Show a friendly message to the user
+        return render_template('products.html', error_msg='An error occurred while loading products. Please try again later.')
 
-    # Check if the product exists
-    if product:
-        # If the product exists, render the 'products.html' template with the product data
-        return render_template('products.html', product=product)
-
-    return render_template('products.html')
 
 
 # we have to define a function to fetch trype of product separately..
