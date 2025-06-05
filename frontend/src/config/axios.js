@@ -4,10 +4,10 @@ import axios from "axios";
 
 export const axiosi = axios.create({
   withCredentials: true,
-  // baseURL: "http://localhost:8000/",
+  baseURL: "http://localhost:5000/",
   // baseURL: process.env.REACT_APP_BASE_URL,
   // baseURL: "https://ecomm-app-1.onrender.com",
-  baseURL: "https://e-comm-app-leslie-23.vercel.app/",
+  // baseURL: "https://e-comm-app-leslie-23.vercel.app/",
   headers: {
     "Content-Type": "application/json",
   },
