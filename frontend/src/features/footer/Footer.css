@@ -1,0 +1,10 @@
+a {
+  text-decoration: none;
+  font-weight: bold;
+  color: green;
+}
+
+.headTexts {
+  /* font-weight: bold; */
+  color: bisque;
+}
