@@ -5,7 +5,7 @@ export const signup = async (cred) => {
     const res = await axiosi.post("auth/signup", cred);
     return res.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response?.data || { message: "Network error occurred" };
   }
 };
 export const login = async (cred) => {
@@ -13,7 +13,7 @@ export const login = async (cred) => {
     const res = await axiosi.post("auth/login", cred);
     return res.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response?.data || { message: "Network error occurred" };
   }
 };
 export const verifyOtp = async (cred) => {
@@ -21,15 +21,14 @@ export const verifyOtp = async (cred) => {
     const res = await axiosi.post("auth/verify-otp", cred);
     return res.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response?.data || { message: "Network error occurred" };
   }
 };
 export const resendOtp = async (cred) => {
   try {
     const res = await axiosi.post("auth/resend-otp", cred);
     return res.data;
-  } catch (error) {
-    throw error.response.data;
+  } catch (error) {    throw error.response?.data || { message: "Network error occurred" };
   }
 };
 export const forgotPassword = async (cred) => {
@@ -37,7 +36,7 @@ export const forgotPassword = async (cred) => {
     const res = await axiosi.post("auth/forgot-password", cred);
     return res.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response?.data || { message: "Network error occurred" };
   }
 };
 export const resetPassword = async (cred) => {
@@ -45,7 +44,7 @@ export const resetPassword = async (cred) => {
     const res = await axiosi.post("auth/reset-password", cred);
     return res.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response?.data || { message: "Network error occurred" };
   }
 };
 export const checkAuth = async (cred) => {
@@ -53,7 +52,7 @@ export const checkAuth = async (cred) => {
     const res = await axiosi.get("auth/check-auth");
     return res.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response?.data || { message: "Network error occurred" };
   }
 };
 export const logout = async () => {
@@ -61,6 +60,6 @@ export const logout = async () => {
     const res = await axiosi.get("auth/logout");
     return res.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response?.data || { message: "Network error occurred" };
   }
 };

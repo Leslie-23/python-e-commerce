@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Auth Test</title>
+</head>
+<body>
+    <h1>Frontend Authentication Test</h1>
+    
+    <div>
+        <h2>Test Login</h2>
+        <button onclick="testLogin()">Test Admin Login</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div>
+        <h2>Test Registration</h2>
+        <button onclick="testRegistration()">Test User Registration</button>
+        <div id="registrationResult"></div>
+    </div>
+    
+    <script>
+        async function testLogin() {
+            const loginResult = document.getElementById('loginResult');
+            loginResult.innerHTML = 'Testing login...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: 'admin@example.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    loginResult.innerHTML = `<div style="color: green;">✅ Login successful!</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                    // Test auth check
+                    setTimeout(async () => {
+                        const authResponse = await fetch('http://localhost:5000/auth/check-auth', {
+                            credentials: 'include'
+                        });
+                        const authData = await authResponse.json();
+                        loginResult.innerHTML += `<div style="color: blue;">Auth check result:</div><pre>${JSON.stringify(authData, null, 2)}</pre>`;
+                    }, 1000);
+                    
+                } else {
+                    loginResult.innerHTML = `<div style="color: red;">❌ Login failed</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                loginResult.innerHTML = `<div style="color: red;">❌ Network error: ${error.message}</div>`;
+                console.error('Login error:', error);
+            }
+        }
+        
+        async function testRegistration() {
+            const registrationResult = document.getElementById('registrationResult');
+            registrationResult.innerHTML = 'Testing registration...';
+            
+            const timestamp = Date.now();
+            
+            try {
+                const response = await fetch('http://localhost:5000/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        name: `Test User ${timestamp}`,
+                        email: `testuser${timestamp}@example.com`,
+                        password: 'TestPass123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    registrationResult.innerHTML = `<div style="color: green;">✅ Registration successful!</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    registrationResult.innerHTML = `<div style="color: red;">❌ Registration failed</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                registrationResult.innerHTML = `<div style="color: red;">❌ Network error: ${error.message}</div>`;
+                console.error('Registration error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

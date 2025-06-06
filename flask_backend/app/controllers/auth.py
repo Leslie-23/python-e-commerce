@@ -23,11 +23,17 @@ def signup():
         # Hash password
         hashed_password = bcrypt.hashpw(
             data['password'].encode('utf-8'), bcrypt.gensalt())
-        data['password'] = hashed_password.decode('utf-8')
-
-        # Create new user
+        data['password'] = hashed_password.decode(
+            'utf-8')        # Create new user
         new_user = User(**data)
-        new_user.save()        # Generate JWT token
+        new_user.save()
+
+        # TODO: Send verification OTP (temporarily disabled for debugging)
+        # if not send_verification_otp(new_user):
+        #     return jsonify({"message": "Failed to send verification OTP"}), 500
+        print(f"✅ User created successfully: {new_user.email}")
+
+        # Generate JWT token
         user_data = sanitize_user(new_user)
         access_token = create_access_token(identity=str(new_user.id))
 
@@ -90,18 +96,26 @@ def send_verification_otp(user):
         # Save OTP to database
         OTP(email=user.email, otp=otp_code).save()
 
-        # Send OTP email
-        email_subject = "Verify your email address"
-        email_body = f"""
-        <html>
-            <body>
-                <h2>Email Verification</h2>
-                <p>Your verification code is: <strong>{otp_code}</strong></p>
-                <p>This code will expire in 10 minutes.</p>
-            </body>
-        </html>
-        """
-        send_mail(user.email, email_subject, email_body)
+        # For development: print OTP to console
+        print(f"🔐 OTP for {user.email}: {otp_code}")
+
+        # Try to send email, but don't fail if email service isn't configured
+        try:
+            email_subject = "Verify your email address"
+            email_body = f"""
+            <html>
+                <body>
+                    <h2>Email Verification</h2>
+                    <p>Your verification code is: <strong>{otp_code}</strong></p>
+                    <p>This code will expire in 10 minutes.</p>
+                </body>
+            </html>
+            """
+            send_mail(user.email, email_subject, email_body)
+            print(f"📧 Email sent to {user.email}")
+        except Exception as email_error:
+            print(f"⚠️  Email service not configured: {email_error}")
+            print(f"📱 Please use this OTP from console: {otp_code}")
 
         return True
     except Exception as e:
@@ -112,7 +126,8 @@ def send_verification_otp(user):
 def verify_otp():
     try:
         data = request.get_json()
-        user_id = data.get('userId')  # Frontend sends {otp: otpValue, userId: userId}
+        # Frontend sends {otp: otpValue, userId: userId}
+        user_id = data.get('userId')
         otp_code = data.get('otp')
 
         # Find user by ID
@@ -121,7 +136,8 @@ def verify_otp():
             return jsonify({"message": "User not found"}), 404
 
         # Find the most recent OTP for this user's email
-        otp_record = OTP.objects(email=user.email).order_by('-created_at').first()
+        otp_record = OTP.objects(email=user.email).order_by(
+            '-created_at').first()
 
         if not otp_record:
             return jsonify({"message": "Invalid OTP"}), 400
