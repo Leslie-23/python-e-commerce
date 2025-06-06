@@ -28,16 +28,15 @@ export const OtpVerfication = () => {
         }
         else if (loggedInUser && loggedInUser?.isVerified) {
             navigate("/")
-        }
-    }, [loggedInUser])
+        }    }, [loggedInUser])
 
     const handleSendOtp = () => {
-        const data = { user: loggedInUser?._id }
+        const data = { user: loggedInUser?.id }
         dispatch(resendOtpAsync(data))
     }
 
     const handleVerifyOtp = (data) => {
-        const cred = { ...data, userId: loggedInUser?._id }
+        const cred = { ...data, userId: loggedInUser?.id }
         dispatch(verifyOtpAsync(cred))
     }
 

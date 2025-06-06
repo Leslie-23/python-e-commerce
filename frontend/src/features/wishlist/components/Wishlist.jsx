@@ -34,10 +34,9 @@ export const Wishlist = () => {
   const is1130=useMediaQuery(theme.breakpoints.down(1130))
   const is642=useMediaQuery(theme.breakpoints.down(642))
   const is480=useMediaQuery(theme.breakpoints.down(480))
-  
-  const handleAddRemoveFromWishlist=(e,productId)=>{
+    const handleAddRemoveFromWishlist=(e,productId)=>{
     if(e.target.checked){
-        const data={user:loggedInUser?._id,product:productId}
+        const data={user:loggedInUser?.id,product:productId}
         dispatch(createWishlistItemAsync(data))
     }
 
@@ -45,7 +44,7 @@ export const Wishlist = () => {
         const index=wishlistItems.findIndex((item)=>item.product._id===productId)
         dispatch(deleteWishlistItemByIdAsync(wishlistItems[index]._id));
     }
-  } 
+  }
 
   useEffect(()=>{
     window.scrollTo({
@@ -127,9 +126,8 @@ export const Wishlist = () => {
     setEditValue(wishlistItems[index].note)
     setEditIndex(index)
   }
-
   const handleAddToCart=(productId)=>{
-    const data={user:loggedInUser?._id,product:productId}
+    const data={user:loggedInUser?.id,product:productId}
     dispatch(addToCartAsync(data))
   }
 

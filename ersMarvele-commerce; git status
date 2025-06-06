@@ -1,0 +1,29 @@
+[33mcommit 2c2bbb54622d83fb7eea2370020ad3ce7c1e8c97[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain-1[m[33m, [m[1;31morigin/main-1[m[33m)[m
+Author: unknown <marvelmmk2005@gmail.com>
+Date:   Fri Jun 6 02:30:39 2025 +0100
+
+    unstable(fixed admin login with demo credentials)
+
+ADMIN_LOGIN_FIX_COMPLETE.md
+MONGODB_SETUP_GUIDE.md
+debug_auth_issue.py
+flask_backend/app/controllers/__pycache__/auth.cpython-310.pyc
+flask_backend/app/controllers/auth.py
+flask_backend/app/seed/__pycache__/seed.cpython-310.pyc
+flask_backend/app/utils/__pycache__/sanitize_user.cpython-310.pyc
+flask_backend/app/utils/sanitize_user.py
+flask_backend/run.py
+flask_backend/test_complete_auth_flow.py
+frontend/build/static/js/main.a0844c94.js
+frontend/build/static/js/main.a0844c94.js.map
+frontend/src/features/auth/AuthApi.jsx
+frontend/src/features/auth/AuthSlice.jsx
+frontend/src/features/auth/components/Signup.jsx
+frontend_auth_test.html
+quick_setup.py
+setup_new_database.py
+test_admin_login_fix.py
+test_complete_integration.py
+test_flask_startup.py
+test_frontend_backend_integration.py
+test_mongodb_connection.py
